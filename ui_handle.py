@@ -1,16 +1,22 @@
 # -*-   coding:utf-8   -*-
 
-from  ui_mainwindows import Ui_Form
 from PyQt4 import QtGui,QtCore
+from ui_mainwindows import Ui_Form
+from ui_settings import Ui_Dialog
+from serial.tools.list_ports import comports
+from qrc_resources import *
 
 class UiHandle(QtGui.MainWindow,Ui_Form):
     def __init__(self):
         QtGui.MainWindow.__init__(self)
         self.setupUi()
-    def setupWidget(self):
+        self.__setupWidget()
+        self.__setupToolBar()
+
+    def __setupWidget(self):
         self.centralwidget.setLayout(self.verticalLayout)
 
-    def setupToolBar(self):
+    def __setupToolBar(self):
         #set file action icons add add to FileToolBars
 
         self.actionNew.setIcon(QIcon(":/file_new.png"))
@@ -49,6 +55,28 @@ class UiHandle(QtGui.MainWindow,Ui_Form):
                 target.addSeparator()
             else:
                 target.addAction(action)
+
+class DlgHandle(QtGui.QDialog,Ui_Dialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setupUi()
+        self.connect(self.port,QtCore.SIGNAL("portPopupShow()"),self.showPort)
+    def showPort(self):
+        self.port.clear()
+        for port,desc,hwid in comports():
+            self.port.addItem(ports)
+    def getPortSettings(self):
+        settings={"port":None,"baud":9600,"databit":8,"checkbit":"None",\
+                  "stopbit":1,"flowcontrol":"OFF","timeout":1}
+        settings["port"] = self.port.currentText()
+        settings["baud"] = self.baudrate.currentText()
+        settings["databit"] = self.databit.currentText()
+        settings["checkbit"] = self.parity.currentText()
+        settings["stopbit"] = self.stopbit.currenttext()
+        settings["flowcontrol"] = self.flowcontrol.currentText()
+        return settings
+
+
 
 
 
