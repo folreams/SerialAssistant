@@ -80,7 +80,6 @@ class UiHandle(QtGui.QMainWindow, Ui_Form):
             else:
                 target.addAction(action)
 
-<<<<<<< Updated upstream
     def __onsettingclicked(self):
         dialog = DlgHandle(self.settings)
         if dialog.exec_():
@@ -92,27 +91,27 @@ class UiHandle(QtGui.QMainWindow, Ui_Form):
 class DlgHandle(QtGui.QDialog,Ui_Dialog):
     def __init__(self,settings):
         QtGui.QDialog.__init__(self)
-        self.setupUi()
+        self.setupUi(self)
         self.initsettings(settings)
-        self.connect(self.port,QtCore.SIGNAL("portPopupShow()"),self.showPort)
+        self.connect(self.port, QtCore.SIGNAL("portPopupShow()"), self.showPort)
 
     def showPort(self):
         self.port.clear()
-        for port,desc,hwid in comports():
-            self.port.addItem(ports)
+        for port, desc, hwid in comports():
+            self.port.addItem(port)
 
-    def initsettings(self,settings):
+    def initsettings(self, settings):
         index = self.port.findText(settings.basic["port"])
         self.port.setCurrentIndex(index)
-        index =  self.baudrate.findText(settings.basic["baud"])
+        index = self.baudrate.findText(settings.basic["baud"])
         self.baud.setCurrentIndex(index)
-        index =  self.databit.findText(settings.basic["databit"])
+        index = self.databit.findText(settings.basic["databit"])
         self.baud.setCurrentIndex(index)
-        index =  self.parity.findText(settings.basic["checkbit"])
+        index = self.parity.findText(settings.basic["checkbit"])
         self.baud.setCurrentIndex(index)
-        index =  self.baudrate.findText(settings.basic["stopbit"])
+        index = self.baudrate.findText(settings.basic["stopbit"])
         self.stopbit.setCurrentIndex(index)
-        index =  self.baudrate.findText(settings.basic["flowcontrol"])
+        index = self.baudrate.findText(settings.basic["flowcontrol"])
         self.flowcontrol.setCurrentIndex(index)
 
         self.recvascii.setChecked(settings.recv["recvascii"])
@@ -132,10 +131,6 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
         settings["stopbit"] = self.stopbit.currenttext()
         settings["flowcontrol"] = self.flowcontrol.currentText()
         return settings
-=======
-    def __actionconfig(self):
-        dialog = DlgHandle()
->>>>>>> Stashed changes
 
     def getrecvsettings(self):
         recv["recvascii"] = self.recvascii.isChecked()
@@ -149,12 +144,7 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
         send["interval"] = self.interval.currentText()
         return send
 
-class SettingData(self.settings):
-    def __init__(self,settings):
-        self.basic = settings.portsettings
-        self.recv = settings.recvsettings
-        self.send = settings.sendsettings
-#        self.log = settings.logsettings
+
 
 
 

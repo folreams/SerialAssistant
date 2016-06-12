@@ -3,26 +3,24 @@
 from serial import Serial
 import threading
 from time import sleep
-from PyQt4 import QtCore.QObject,QtCore.SIGNAL
+from PyQt4 import QtCore.QObject, QtCore.SIGNAL()
 
 
 class MySerial(threading.Thread):
-    def __init__(self,settings):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.__terminate = False
         self.__exit = True
         self.qtobj = QtCore.QObject()
-        self.serial = Serial(None,settings["baud"],settings["databit"],settings["checkbit"],
-                             settings["stopbit"],settings["flowcontrol"],timeout = 1)
 
     def open(self,settings):
         try:
-            self.serial.open(settings["port"],settings["baud"],settings["databit"],settings["checkbit"],
+            self.serial = Serial(settings["port"],settings["baud"],settings["databit"],settings["checkbit"],
                              settings["stopbit"],settings["flowcontrol"],timeout = 1)
         except Exception as msg:
             return False,msg
-        self.serial.flashInput()
-        self.serial.flashOutput()
+        self.serial.flushInput()
+        self.serial.flushOutput()
         self.__exit = False
         return True,"Sucess"
 
@@ -38,10 +36,10 @@ class MySerial(threading.Thread):
         self.__exit = True
 
     def __recv(self):
-        data,quit = None,False
+        data, quit = None,False
         while 1:
-            if self.__terminate == True:
-                break;
+            if self.__terminate :
+                break
             data = self.serial.read(1)
             if data == b'':
                 return
@@ -59,7 +57,7 @@ class MySerial(threading.Thread):
     def send(self,data):
         try:
             self.serial.write(data)
-        except Error as msg:
+        except Exception as msg:
             return False,msg
         return True, "send data sucess"
 
