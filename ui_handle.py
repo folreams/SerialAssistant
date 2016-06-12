@@ -56,18 +56,50 @@ class UiHandle(QtGui.MainWindow,Ui_Form):
             else:
                 target.addAction(action)
 
+    def __onsettingclicked(self):
+        dialog = DlgHandle(self.settings)
+        if dialog.exec_():
+            self.settings.basic = dialog.getportsettings()
+            self.settings.recv = dialog.getrecvsettings()
+            self.settings.send = dialog.getsendsettings()
+
+
 class DlgHandle(QtGui.QDialog,Ui_Dialog):
-    def __init__(self):
+    def __init__(self,settings):
         QtGui.QDialog.__init__(self)
         self.setupUi()
+        self.initsettings(settings)
         self.connect(self.port,QtCore.SIGNAL("portPopupShow()"),self.showPort)
+
     def showPort(self):
         self.port.clear()
         for port,desc,hwid in comports():
             self.port.addItem(ports)
-    def getPortSettings(self):
-        settings={"port":None,"baud":9600,"databit":8,"checkbit":"None",\
-                  "stopbit":1,"flowcontrol":"OFF","timeout":1}
+
+    def initsettings(self,settings):
+        index = self.port.findText(settings.basic["port"])
+        self.port.setCurrentIndex(index)
+        index =  self.baudrate.findText(settings.basic["baud"])
+        self.baud.setCurrentIndex(index)
+        index =  self.databit.findText(settings.basic["databit"])
+        self.baud.setCurrentIndex(index)
+        index =  self.parity.findText(settings.basic["checkbit"])
+        self.baud.setCurrentIndex(index)
+        index =  self.baudrate.findText(settings.basic["stopbit"])
+        self.stopbit.setCurrentIndex(index)
+        index =  self.baudrate.findText(settings.basic["flowcontrol"])
+        self.flowcontrol.setCurrentIndex(index)
+
+        self.recvascii.setChecked(settings.recv["recvascii"])
+        self.wrapline.setChecked(settings.recv["wrapline"])
+        self.showsend.setChecked(settings.recv["showsend"])
+        self.showtime.setChecked(settings.recv["showtime"])
+
+        self.sendascii.setChecked(settings.send["sendascii"])
+        self.repeat.setChecked(settings.send["repeat"])
+        self.interval.setValue(settings.send["interval"])
+
+    def getportsettings(self):
         settings["port"] = self.port.currentText()
         settings["baud"] = self.baudrate.currentText()
         settings["databit"] = self.databit.currentText()
@@ -75,6 +107,25 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
         settings["stopbit"] = self.stopbit.currenttext()
         settings["flowcontrol"] = self.flowcontrol.currentText()
         return settings
+
+    def getrecvsettings(self):
+        recv["recvascii"] = self.recvascii.isChecked()
+        recv["wrapline"] = self.wrapline.isChecked()
+        recv["showsend"] = self.showsend.isChecked()
+        recv["showtime"] =  self.showtime.isChecked()
+        return recv
+    def getsendsettings(self):
+        send["sendascii"] =  self.sendascii.isChecked()
+        send["repeat"] = self.repeat.isChecked()
+        send["interval"] = self.interval.currentText()
+        return send
+
+class SettingData(self.settings):
+    def __init__(self,settings):
+        self.basic = settings.portsettings
+        self.recv = settings.recvsettings
+        self.send = settings.sendsettings
+#        self.log = settings.logsettings
 
 
 
