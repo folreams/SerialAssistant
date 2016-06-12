@@ -23,12 +23,15 @@ except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class PortComboBox(QtGui.QComboBox):
     def showPopup(self):
         self.emit(QtCore.SIGNAL("portPopupShow()"))
         QtGui.QComboBox.showPopup()
+
     def hidePopup(self):
         QtGui.QComboBox.hidePopup()
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -101,7 +104,7 @@ class Ui_Dialog(object):
         self.parity.addItem(_fromUtf8(""))
         self.parity.addItem(_fromUtf8(""))
         self.gridLayout.addWidget(self.parity, 2, 1, 1, 1)
-        #replace the combobox
+        # replace the combobox
         self.port = PortComboBox(self.portsettings)
 
         self.port.setObjectName(_fromUtf8("port"))
