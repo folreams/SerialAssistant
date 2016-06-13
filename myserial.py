@@ -3,7 +3,7 @@
 from serial import Serial
 import threading
 from time import sleep
-from PyQt4 import QtCore.QObject, QtCore.SIGNAL()
+from PyQt4 import QtCore
 
 
 class MySerial(threading.Thread):

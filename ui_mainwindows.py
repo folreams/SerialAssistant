@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_mainwindows.ui'
 #
-# Created: Wed Jun  8 12:10:32 2016
+# Created: Mon Jun 13 14:19:34 2016
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,15 +34,15 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
-        self.centralwidget.setMinimumSize(QtCore.QSize(710, 496))
-        self.centralwidget.setSizeIncrement(QtCore.QSize(710, 496))
+        self.centralwidget.setMinimumSize(QtCore.QSize(709, 400))
+        self.centralwidget.setSizeIncrement(QtCore.QSize(710, 400))
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.widget = QtGui.QWidget(self.centralwidget)
-        self.widget.setGeometry(QtCore.QRect(0, 0, 714, 498))
+        self.widget.setGeometry(QtCore.QRect(0, -3, 714, 421))
         self.widget.setObjectName(_fromUtf8("widget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.widget)
         self.verticalLayout.setSpacing(5)
-        self.verticalLayout.setContentsMargins(5, -1, -1, -1)
+        self.verticalLayout.setContentsMargins(5, -1, -1, 0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.textBrowser = QtGui.QTextBrowser(self.widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -50,14 +50,15 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.textBrowser.sizePolicy().hasHeightForWidth())
         self.textBrowser.setSizePolicy(sizePolicy)
-        self.textBrowser.setMinimumSize(QtCore.QSize(708, 390))
+        self.textBrowser.setMinimumSize(QtCore.QSize(708, 300))
         self.textBrowser.setLineWidth(0)
         self.textBrowser.setLineWrapColumnOrWidth(0)
+        self.textBrowser.setTabStopWidth(80)
         self.textBrowser.setObjectName(_fromUtf8("textBrowser"))
         self.verticalLayout.addWidget(self.textBrowser)
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setSpacing(17)
-        self.horizontalLayout.setContentsMargins(-1, -1, 17, 0)
+        self.horizontalLayout.setContentsMargins(0, 0, 17, -1)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.textEdit = QtGui.QTextEdit(self.widget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
@@ -94,11 +95,6 @@ class Ui_Form(object):
         self.statusBar.setSizeIncrement(QtCore.QSize(0, 24))
         self.statusBar.setObjectName(_fromUtf8("statusBar"))
         Form.setStatusBar(self.statusBar)
-        self.toolBar = QtGui.QToolBar(Form)
-        self.toolBar.setMinimumSize(QtCore.QSize(0, 32))
-        self.toolBar.setSizeIncrement(QtCore.QSize(0, 32))
-        self.toolBar.setObjectName(_fromUtf8("toolBar"))
-        Form.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionNew = QtGui.QAction(Form)
         self.actionNew.setObjectName(_fromUtf8("actionNew"))
         self.actionOpen = QtGui.QAction(Form)
@@ -147,7 +143,6 @@ class Ui_Form(object):
         self.menuEdit.setTitle(_translate("Form", "编辑", None))
         self.menu_Tool.setTitle(_translate("Form", "工具", None))
         self.menu_Help.setTitle(_translate("Form", "帮助", None))
-        self.toolBar.setWindowTitle(_translate("Form", "toolBar", None))
         self.actionNew.setText(_translate("Form", "新建", None))
         self.actionNew.setShortcut(_translate("Form", "Ctrl+N", None))
         self.actionOpen.setText(_translate("Form", "打开", None))
