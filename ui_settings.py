@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_settings.ui'
 #
-# Created: Wed Jun  8 12:10:59 2016
+# Created: Wed Jun 15 13:37:20 2016
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -22,17 +22,12 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
-
-
 class PortComboBox(QtGui.QComboBox):
     def showPopup(self):
         self.emit(QtCore.SIGNAL("portPopupShow()"))
-        QtGui.QComboBox.showPopup()
-
+        QtGui.QComboBox.showPopup(self)
     def hidePopup(self):
-        QtGui.QComboBox.hidePopup()
-
-
+        QtGui.QComboBox.hidePopup(self)
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
@@ -104,9 +99,7 @@ class Ui_Dialog(object):
         self.parity.addItem(_fromUtf8(""))
         self.parity.addItem(_fromUtf8(""))
         self.gridLayout.addWidget(self.parity, 2, 1, 1, 1)
-        # replace the combobox
-        self.port = PortComboBox(self.portsettings)
-
+        self.port = PortComboBox()
         self.port.setObjectName(_fromUtf8("port"))
         self.gridLayout.addWidget(self.port, 0, 1, 1, 1)
         self.tabWidget.addTab(self.portsettings, _fromUtf8(""))
@@ -158,6 +151,9 @@ class Ui_Dialog(object):
         self.repeat.setObjectName(_fromUtf8("repeat"))
         self.gridLayout_3.addWidget(self.repeat, 1, 0, 1, 1)
         self.interval = QtGui.QSpinBox(self.layoutWidget1)
+        self.interval.setMaximum(16000000)
+        self.interval.setSingleStep(100)
+        self.interval.setProperty("value", 1000)
         self.interval.setObjectName(_fromUtf8("interval"))
         self.gridLayout_3.addWidget(self.interval, 1, 1, 1, 2)
         self.tabWidget.addTab(self.sendsettings, _fromUtf8(""))
@@ -169,7 +165,7 @@ class Ui_Dialog(object):
         self.label_baud.setBuddy(self.baudrate)
 
         self.retranslateUi(Dialog)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), Dialog.accept)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), Dialog.reject)
         QtCore.QMetaObject.connectSlotsByName(Dialog)

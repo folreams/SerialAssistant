@@ -42,7 +42,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="portsettings">
     <attribute name="title">
@@ -348,6 +348,15 @@
        <widget class="QSpinBox" name="interval">
         <property name="suffix">
          <string>mS</string>
+        </property>
+        <property name="maximum">
+         <number>16000000</number>
+        </property>
+        <property name="singleStep">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>1000</number>
         </property>
        </widget>
       </item>

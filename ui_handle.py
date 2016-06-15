@@ -27,48 +27,53 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
             self.port.addItem(port)
 
     def initsettings(self, settings):
-        index = self.port.findText(settings.port["port"])
+        portsettings = settings["portsettings"]
+        print(portsettings)
+        index = self.port.findText(portsettings["port"])
         self.port.setCurrentIndex(index)
-        index = self.baudrate.findText(settings.port["baud"])
-        self.baud.setCurrentIndex(index)
-        index = self.databit.findText(settings.port["databit"])
-        self.baud.setCurrentIndex(index)
-        index = self.parity.findText(settings.port["checkbit"])
-        self.baud.setCurrentIndex(index)
-        index = self.baudrate.findText(settings.port["stopbit"])
+        index = self.baudrate.findText(portsettings["baud"])
+        self.baudrate.setCurrentIndex(index)
+        index = self.databit.findText(portsettings["databit"])
+        self.databit.setCurrentIndex(index)
+        index = self.parity.findText(portsettings["checkbit"])
+        self.parity.setCurrentIndex(index)
+        index = self.stopbit.findText(portsettings["stopbit"])
         self.stopbit.setCurrentIndex(index)
-        index = self.baudrate.findText(settings.port["flowcontrol"])
+        index = self.flowcontrol.findText(portsettings["flowcontrol"])
         self.flowcontrol.setCurrentIndex(index)
-
-        self.recvascii.setChecked(settings.recv["recvascii"])
-        self.wrapline.setChecked(settings.recv["wrapline"])
-        self.showsend.setChecked(settings.recv["showsend"])
-        self.showtime.setChecked(settings.recv["showtime"])
-
-        self.sendascii.setChecked(settings.send["sendascii"])
-        self.repeat.setChecked(settings.send["repeat"])
-        self.interval.setValue(settings.send["interval"])
+        recvsettings = settings["recvsettings"]
+        self.recvascii.setChecked(recvsettings["recvascii"])
+        self.wrapline.setChecked(recvsettings["wrapline"])
+        self.showsend.setChecked(recvsettings["showsend"])
+        self.showtime.setChecked(recvsettings["showtime"])
+        sendsettings = settings["sendsettings"]
+        self.sendascii.setChecked(sendsettings["sendascii"])
+        self.repeat.setChecked(sendsettings["repeat"])
+        self.interval.setValue(sendsettings["interval"])
 
     def getportsettings(self):
+        settings={"port":None, "baud":"9600", "databit":"8", "checkbit":"None", "stopbit":"1", "flowcontrol":"OFF","timeout":1}
         settings["port"] = self.port.currentText()
         settings["baud"] = self.baudrate.currentText()
         settings["databit"] = self.databit.currentText()
         settings["checkbit"] = self.parity.currentText()
-        settings["stopbit"] = self.stopbit.currenttext()
+        settings["stopbit"] = self.stopbit.currentText()
         settings["flowcontrol"] = self.flowcontrol.currentText()
         return settings
 
     def getrecvsettings(self):
-        recv["recvascii"] = self.recvascii.isChecked()
-        recv["wrapline"] = self.wrapline.isChecked()
-        recv["showsend"] = self.showsend.isChecked()
-        recv["showtime"] =  self.showtime.isChecked()
-        return recv
+        settings = {"recvascii":True,"wrapline":True,"showsend":False,"showtime":False}
+        settings["recvascii"] = self.recvascii.isChecked()
+        settings["wrapline"] = self.wrapline.isChecked()
+        settings["showsend"] = self.showsend.isChecked()
+        settings["showtime"] =  self.showtime.isChecked()
+        return settings
     def getsendsettings(self):
-        send["sendascii"] =  self.sendascii.isChecked()
-        send["repeat"] = self.repeat.isChecked()
-        send["interval"] = self.interval.currentText()
-        return send
+        settings = {"sendascii":True,"repeat":False,"interval":1000}
+        settings["sendascii"] =  self.sendascii.isChecked()
+        settings["repeat"] = self.repeat.isChecked()
+        settings["interval"] = self.interval.value()
+        return settings
 
 
 

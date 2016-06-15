@@ -4,26 +4,58 @@ from myserial import MySerial
 from ui_handle import UiHandle,DlgHandle
 from PyQt4 import QtGui,QtCore
 
-
 class MainWindows(QtGui.QMainWindow,UiHandle):
     def __init__(self,parent=None):
         super(MainWindows,self).__init__()
+
+        self.settings= QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
+        fname = self.settings.value("lastfile")
+        if fname is not None:
+            size = self.settings.value("size",QtCore.QSize(720,576))
+            self.resize(size)
+            pos = self.settings.value("pos",QtCore.QPoint(200,200))
+            self.move(pos)
+            self.config = self.loadsettings()
+        else:
+            self.resize(QtCore.QSize(720,576))
+            self.move(QtCore.QPoint(200,200))
+            self.config = {"portsettings":{"port":None,"baud":"9600","databit":"8","stopbit":"1",
+                             "checkbit":"NONE","flowcontrol":"OFF"},
+                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend":False,"showtime":False},
+                       "sendsettings":{"sendascii":True,"repeat":False,"interval":1000}}
+
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
         self.setuptoolbar()
         self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
+    def loadsettings(self):
+        config = {"portsettings":{"port":None,"baud":9600,"databit":8,"stopbit":1,
+                             "checkbit":"None","flowcontrol":"OFF"},
+                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend":False,"showtime":False},
+                       "sendsettings":{"sendascii":True,"repeat":False,"interval":1000}}
+        for key in config:
+            config[key]=self.settings.value(key)
+        return config
+
+    def writesettings(self,config):
+        for key in config:
+            self.settings.setValue(key,config[key])
+
+    def closeEvent(self,event):
+        self.settings.setValue("lastfile",self.config["portsettings"]["port"]+"-"+self.config["portsettings"]["baud"])
+        size = self.size()
+        self.settings.setValue("size",QtCore.QSize(size))
+        pos = self.pos()
+        self.settings.setValue("pos",QtCore.QPoint(pos))
+        self.writesettings(self.config)
 
     def __onsettingclicked(self):
-        print("sucess")
-        dialog = DlgHandle(self.settings)
+        dialog = DlgHandle(self.config)
         if dialog.exec_():
-            self.settings.port = dialog.getportsettings()
-            self.settings.recv = dialog.getrecvsettings()
-            self.settings.send = dialog.getsendsettings()
-#        self.__setupsignal()
-    def readsettings(self):
-        settings = QtCore.QSettings("./settings.ini",QtCore.QSettings,IniFormat)
+            self.config["portsettings"] = dialog.getportsettings()
+            self.config["recvsettings"] = dialog.getrecvsettings()
+            self.config["sendsettings"] = dialog.getsendsettings()
 
     def setuptoolbar(self):
         # set file action icons add add to FileToolBars
