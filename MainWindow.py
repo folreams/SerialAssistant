@@ -2,33 +2,41 @@
 
 from myserial import MySerial
 from ui_handle import UiHandle,DlgHandle
-from PyQt4 import QtGui,QtCore
+from PyQt4 import QtGui, QtCore
+
 
 class MainWindows(QtGui.QMainWindow,UiHandle):
-    def __init__(self,parent=None):
-        super(MainWindows,self).__init__()
+    NextId = 1
+    Instances = set()
 
-        self.settings= QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
+    def __init__(self, parent=None):
+        super(MainWindows, self).__init__()
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        MainWindows.Instances.add(self)
+
+        self.settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
         fname = self.settings.value("lastfile")
         if fname is not None:
             size = self.settings.value("size",QtCore.QSize(720,576))
             self.resize(size)
-            pos = self.settings.value("pos",QtCore.QPoint(200,200))
+            pos = self.settings.value("pos", QtCore.QPoint(200,200))
             self.move(pos)
             self.config = self.loadsettings()
         else:
-            self.resize(QtCore.QSize(720,576))
-            self.move(QtCore.QPoint(200,200))
-            self.config = {"portsettings":{"port":None,"baud":"9600","databit":"8","stopbit":"1",
-                             "checkbit":"NONE","flowcontrol":"OFF"},
-                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend":False,"showtime":False},
-                       "sendsettings":{"sendascii":True,"repeat":False,"interval":1000}}
+            self.resize(QtCore.QSize(720, 576))
+            self.move(QtCore.QPoint(200, 200))
+            self.config = {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
+                             "checkbit" : "NONE", "flowcontrol": "OFF"},
+                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend": False,"showtime":False},
+                       "sendsettings" : {"sendascii":True,"repeat": False, "interval": 1000}}
 
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
         self.setuptoolbar()
-        self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
+        self.__setupsignal()
+        # self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
+
     def loadsettings(self):
         config = {"portsettings":{"port":None,"baud":9600,"databit":8,"stopbit":1,
                              "checkbit":"None","flowcontrol":"OFF"},
@@ -38,17 +46,20 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             config[key]=self.settings.value(key)
         return config
 
-    def writesettings(self,config):
+    def writesettings(self, config):
         for key in config:
             self.settings.setValue(key,config[key])
 
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         self.settings.setValue("lastfile",self.config["portsettings"]["port"]+"-"+self.config["portsettings"]["baud"])
         size = self.size()
-        self.settings.setValue("size",QtCore.QSize(size))
+        self.settings.setValue("size" ,QtCore.QSize(size))
         pos = self.pos()
-        self.settings.setValue("pos",QtCore.QPoint(pos))
+        self.settings.setValue("pos", QtCore.QPoint(pos))
         self.writesettings(self.config)
+
+    def __filenew(self):
+        MainWindows().show()
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)
@@ -98,15 +109,14 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             else:
                 target.addAction(action)
 
-
     def __setupsignal(self):
         self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
-    #    self.ui.actionNew.trigger.connect(self.__filenewaction)
-    #     self.ui.actionOpen.trigger.connect(self.__fileopenaction)
-    #     self.ui.actionSave.trigger.connect(self.__filesaveaction)
+        self.ui.actionNew.triggered.connect(self.__filenew)
+    #     self.ui.actionOpen.triggered.connect(self.__fileopenaction)
+    #     self.ui.actionSave.triggered.connect(self.__filesaveaction)
     #
-    #     self.ui.actionstart.trigger.connect(self.__onportopen)
-    #     self.ui.actionstop.trigger.connect(self.__onportpasue)
+    #     self.ui.actionstart.triggered.connect(self.__onportopen)
+    #     self.ui.actionstop.triggered.connect(self.__onportpasue)
 
 
 

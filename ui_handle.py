@@ -74,6 +74,3 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
         settings["repeat"] = self.repeat.isChecked()
         settings["interval"] = self.interval.value()
         return settings
-
-
-
