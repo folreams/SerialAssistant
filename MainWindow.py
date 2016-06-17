@@ -14,7 +14,6 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         super(MainWindows, self).__init__()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         MainWindows.Instances.add(self)
-
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
@@ -22,55 +21,32 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.__setupsignal()
 
         settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-        self.recentfile = settings.value("Recentfile")
         size = settings.value("MainWindow/Size",QtCore.QSize(720,576))
         self.resize(size)
-        pos = settings.value("MainWindow/Position",QtCore.QPoint(0,0))
+        pos = settings.value("MainWindow/Position",QtCore.QPoint(100,100))
         self.move(pos)
-#        self.restoreState(settings.value("MainWindow/State").toByteArray())
+        self.config = settings.value("Config",{"portsettings":{"port":None, "baud":"9600","databit":"8", "stopbit":"1",
+                                                      "checkbit" : "NONE", "flowcontrol": "OFF"},
+                                      "recvsettings":{"recvascii":True,"wrapline":True,"showsend": False,"showtime":False},
+                                      "sendsettings":{"sendascii":True,"repeat": False, "interval": 1000} })
 
-        self.filename = filename
         if filename is None:
-            self.filename = "Unnamed-%d" % MainWindows.NextId
+            filename = "Unnamed-%d" % MainWindows.NextId
             MainWindows.NextId = MainWindows.NextId+1
-            self.setWindowTitle("Serial Asstitant - %s" % self.filename)
-            self.config = {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
-                             "checkbit" : "NONE", "flowcontrol": "OFF"},
-                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend": False,"showtime":False},
-                       "sendsettings" : {"sendascii":True,"repeat": False, "interval": 1000}}
+            self.setWindowTitle("Serial Asstitant - %s" % filename)
         else:
-            self.config = self.loadsettings()
+            self.loadfile(filname)
 
-
-        # self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
-
-    def loadsettings(self):
-        settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-        filename = settings.value("Recentfile")
-        if filename and QFile.exists(filename):
-            self.loadfile(filename)
-        config = {"portsettings":{"port":None,"baud":9600,"databit":8,"stopbit":1,
-                             "checkbit":"None","flowcontrol":"OFF"},
-                       "recvsettings":{"recvascii":True,"wrapline":True,"showsend":False,"showtime":False},
-                       "sendsettings":{"sendascii":True,"repeat":False,"interval":1000}}
-        for key in config:
-            config[key]= settings.value(key)
-        return config
-
-    def writesettings(self, config):
-        settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-        for key in config:
-            settings.setValue(key,config[key])
 
     def closeEvent(self, event):
         if self.filename:
             settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
             settings.setValue("lastfile",self.filename)
             size = self.size()
-            settings.setValue("size" ,QtCore.QSize(size))
+            settings.setValue("MainWindow/Size" ,QtCore.QSize(size))
             pos = self.pos()
-            settings.setValue("pos", QtCore.QPoint(pos))
-            self.writesettings(self.config)
+            settings.setValue("MainWindow/Position", QtCore.QPoint(pos))
+            settings.setValue("Config",self.config)
 
     def __filenew(self):
         MainWindows().show()
@@ -78,8 +54,9 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
     def __fileopen(self):
         dir = os.path.dirname(self.filename) if self.filename is not None else "."
         filename = QtGui.QFileDialog.getOpenFileName(self,"Serial Assistant -- Open File",dir,"Seria *.sa")
-        if filename :
-            self.loadfile(filename)
+        if not filename.isEmpty(()) :
+            MainWindows(filename).show()
+
 
     def loadfile(self,filename = None):
         if filename is None:
@@ -89,7 +66,10 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             else:
                 return
         if filename:
-            MainWindows(filename).show()
+            self.filename = filename
+            self.setWindowTitle("Serial Asstitant - %s" % self.filename)
+            fb = open(filename,'r')
+            for test in fb:
 
 
     def __onsettingclicked(self):
