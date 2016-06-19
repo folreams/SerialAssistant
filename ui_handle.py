@@ -14,14 +14,14 @@ class UiHandle(Ui_Form):
         self.centralwidget.setLayout(self.verticalLayout)
 
 
-class DlgHandle(QtGui.QDialog,Ui_Dialog):
-    def __init__(self,settings):
+class DlgHandle(QtGui.QDialog, Ui_Dialog):
+    def __init__(self, settings):
         QtGui.QDialog.__init__(self)
         self.setupUi(self)
         self.initsettings(settings)
-        self.connect(self.port, QtCore.SIGNAL("portPopupShow()"), self.showPort)
+        self.connect(self.port, QtCore.SIGNAL("portPopupShow()"), self.showport)
 
-    def showPort(self):
+    def showport(self):
         self.port.clear()
         for port, desc, hwid in comports():
             self.port.addItem(port)
@@ -29,8 +29,8 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
     def initsettings(self, settings):
         portsettings = settings["portsettings"]
         print(portsettings)
-        index = self.port.findText(portsettings["port"])
-        self.port.setCurrentIndex(index)
+        # index = self.port.findText(portsettings["port"])
+        # self.port.setCurrentIndex(index)
         index = self.baudrate.findText(portsettings["baud"])
         self.baudrate.setCurrentIndex(index)
         index = self.databit.findText(portsettings["databit"])
@@ -52,7 +52,7 @@ class DlgHandle(QtGui.QDialog,Ui_Dialog):
         self.interval.setValue(sendsettings["interval"])
 
     def getportsettings(self):
-        settings={"port":None, "baud":"9600", "databit":"8", "checkbit":"None", "stopbit":"1", "flowcontrol":"OFF","timeout":1}
+        settings={"port":None, "baud":"9600", "databit": "8", "checkbit":"None", "stopbit":"1", "flowcontrol":"OFF","timeout":1}
         settings["port"] = self.port.currentText()
         settings["baud"] = self.baudrate.currentText()
         settings["databit"] = self.databit.currentText()

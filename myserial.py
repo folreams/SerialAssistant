@@ -13,7 +13,7 @@ class MySerial(threading.Thread):
         self.__exit = True
         self.qtobj = QtCore.QObject()
 
-    def open(self,settings):
+    def open(self, settings):
         try:
             self.serial = Serial(settings["port"],settings["baud"],settings["databit"],settings["checkbit"],
                              settings["stopbit"],settings["flowcontrol"], timeout = 1)

@@ -22,12 +22,17 @@ try:
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
+
 class PortComboBox(QtGui.QComboBox):
     def showPopup(self):
         self.emit(QtCore.SIGNAL("portPopupShow()"))
+        print("send popup signal")
         QtGui.QComboBox.showPopup(self)
     def hidePopup(self):
         QtGui.QComboBox.hidePopup(self)
+
+
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))

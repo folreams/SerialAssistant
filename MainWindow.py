@@ -1,6 +1,7 @@
 # -*- coding : utf-8 -*-
 
 import os
+import shelve
 from myserial import MySerial
 from ui_handle import UiHandle,DlgHandle
 from PyQt4 import QtGui, QtCore
@@ -20,57 +21,61 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.setuptoolbar()
         self.__setupsignal()
 
-        settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-        size = settings.value("MainWindow/Size",QtCore.QSize(720,576))
+        settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
+        size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
         self.resize(size)
-        pos = settings.value("MainWindow/Position",QtCore.QPoint(100,100))
+        pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
         self.move(pos)
-        self.config = settings.value("Config",{"portsettings":{"port":None, "baud":"9600","databit":"8", "stopbit":"1",
+        self.config = settings.value("Config", {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
                                                       "checkbit" : "NONE", "flowcontrol": "OFF"},
-                                      "recvsettings":{"recvascii":True,"wrapline":True,"showsend": False,"showtime":False},
-                                      "sendsettings":{"sendascii":True,"repeat": False, "interval": 1000} })
+                                      "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
+                                      "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
 
         if filename is None:
-            filename = "Unnamed-%d" % MainWindows.NextId
+            self.filename = "Unnamed-%d" % MainWindows.NextId
             MainWindows.NextId = MainWindows.NextId+1
-            self.setWindowTitle("Serial Asstitant - %s" % filename)
+            self.setWindowTitle("Serial Assistant - %s" % self.filename)
         else:
-            self.loadfile(filname)
+            self.loadfile(filename)
+        self.fb = shelve.open(self.filename)
+        self.fb["FileName"] = self.filename
+        self.fb["Config"] = self.config
 
+    def __onportopen(self):
+        ser = MySerial.Serial(self.config["portsettings"])
 
     def closeEvent(self, event):
         if self.filename:
             settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-            settings.setValue("lastfile",self.filename)
+            settings.setValue("Lastfile", self.filename)
             size = self.size()
             settings.setValue("MainWindow/Size" ,QtCore.QSize(size))
             pos = self.pos()
             settings.setValue("MainWindow/Position", QtCore.QPoint(pos))
-            settings.setValue("Config",self.config)
+            settings.setValue("Config", self.config)
 
     def __filenew(self):
         MainWindows().show()
 
     def __fileopen(self):
         dir = os.path.dirname(self.filename) if self.filename is not None else "."
-        filename = QtGui.QFileDialog.getOpenFileName(self,"Serial Assistant -- Open File",dir,"Seria *.sa")
-        if not filename.isEmpty(()) :
+        filename = QtGui.QFileDialog.getOpenFileName(self, "Serial Assistant -- Open File",dir,"Seria *.sa")
+        if filename:
             MainWindows(filename).show()
 
+    def __filesave(self):
+        if self.filename is
 
-    def loadfile(self,filename = None):
+    def loadfile(self, filename=None):
         if filename is None:
             action = self.sender()
-            if isinstance(action,QtGui.QAction):
+            if isinstance(action, QtGui.QAction):
                 filename = action.data()
             else:
                 return
         if filename:
+            self.setWindowTitle("Serial Assistant - %s" % filename)
             self.filename = filename
-            self.setWindowTitle("Serial Asstitant - %s" % self.filename)
-            fb = open(filename,'r')
-            for test in fb:
-
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)

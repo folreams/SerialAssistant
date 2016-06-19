@@ -8,6 +8,7 @@
       <w>flowcontrol</w>
       <w>getportsettings</w>
       <w>hwid</w>
+      <w>portsettings</w>
       <w>setuptoolbar</w>
       <w>setupwidget</w>
       <w>showport</w>
