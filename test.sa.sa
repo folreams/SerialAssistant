@@ -1,1 +1,0 @@
-FileName=E:/BitBucket/SerialAssistant/test.saConfig={'sendsettings': {'repeat': False, 'interval': 1000, 'sendascii': True}, 'recvsettings': {'recvascii': True, 'showtime': False, 'showsend': False, 'wrapline': True}, 'portsettings': {'port': 'COM1', 'checkbit': 'NONE', 'flowcontrol': 'OFF', 'baud': '9600', 'databit': '8', 'stopbit': '1', 'timeout': 1}}

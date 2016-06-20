@@ -1,0 +1,1 @@
+FileName=E:/GitHub/SerialAssistant/test1.saConfig={'sendsettings': {'interval': 1000, 'repeat': False, 'sendascii': True}, 'portsettings': {'baud': '9600', 'checkbit': 'NONE', 'port': 'COM1', 'flowcontrol': 'OFF', 'databit': '8', 'stopbit': '1', 'timeout': 1}, 'recvsettings': {'wrapline': True, 'recvascii': True, 'showsend': False, 'showtime': False}}
