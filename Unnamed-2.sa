@@ -1,0 +1,1 @@
+FileName=Unnamed-2Config={'sendsettings': {'interval': 1000, 'sendascii': True, 'repeat': False}, 'recvsettings': {'recvascii': True, 'showsend': False, 'wrapline': True, 'showtime': False}, 'portsettings': {'databit': '8', 'flowcontrol': 'OFF', 'stopbit': '1', 'checkbit': 'NONE', 'timeout': 1, 'baud': '9600', 'port': 'COM1'}}

@@ -22,6 +22,7 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.__setupsignal()
 
         settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
+        self.recentfiles = settings.value("RecentFiles",[])
         size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
         self.resize(size)
         pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
@@ -32,14 +33,17 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
                                       "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
 
         if filename is None:
-            self.filename = "Unnamed-%d" % MainWindows.NextId
+            filename = "Unnamed-%d" % MainWindows.NextId
             MainWindows.NextId = MainWindows.NextId+1
-            self.setWindowTitle("Serial Assistant - %s" % self.filename)
+            self.setWindowTitle("Serial Assistant - %s" % filename)
+            # create project file and log file name
+            self.filename = None
+            fb = open("%s.sa" % filename ,"w")
+            fb.writelines("FileName=%s" %filename)
+            fb.writelines("Config=%s" %self.config)
+            fb.close()
         else:
             self.loadfile(filename)
-        self.fb = shelve.open(self.filename)
-        self.fb["FileName"] = self.filename
-        self.fb["Config"] = self.config
 
     def __onportopen(self):
         ser = MySerial.Serial(self.config["portsettings"])
@@ -48,6 +52,8 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         if self.filename:
             settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
             settings.setValue("Lastfile", self.filename)
+            recentfiles= QtCore.QVariant(self.recentfiles) if self.recentfiles else QtCore.QVariant()
+            settings.setValue("RecentFiles",recentfiles)
             size = self.size()
             settings.setValue("MainWindow/Size" ,QtCore.QSize(size))
             pos = self.pos()
@@ -64,7 +70,60 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             MainWindows(filename).show()
 
     def __filesave(self):
-        if self.filename is
+        if self.filename is None:
+            self.__filesaveas()
+        else:
+            fb = open("%s.sa" % self.filename ,"w")
+            fb.writelines("FileName=%s" % self.filename)
+            fb.writelines("Config=%s" % self.config)
+            fb.close()
+            print("we hare here")
+            self.updatestatus("Save as %s" % self.filename)
+
+    def __filesaveas(self):
+        filename = self.filename if self.filename is not None else "."
+        filename = QtGui.QFileDialog.getSaveFileName(self,"Save Serial",filename,"*.sa")
+        if filename:
+            if '.'not in filename:
+                filename += ".sa"
+            self.addrecentfile(filename)
+            self.filename = filename
+            self.__filesave()
+
+    def updatefilemenu(self):
+        self.menuFile.clear()
+        menufileactions =(self.actionNew,self.actionOpen,self.actionSave,self.actionQuit)
+        self.addactions(self.menuFile,menufileactions[:-1])
+        current = self.filename if self.filename is not None else None
+        recentfiles = []
+        for filename in self.recentfiles:
+            if filename != current and QFile.exists(filename):
+                recentfiles.append(filename)
+        if recentfiles:
+            self.menuFile.addSeperator()
+            for i,filename in enumberate(recentfiles):
+                action =  QtCore.QAction(QtGui.QIcon(":/icon.png"),"&%d %s"
+                                         %(i+1,QtGui.QFileInfo(filename).fileName()),self)
+                action.setData(QtCore.QVariant(fileanme))
+                self.connect(action,QtCore.SIGNAL("triggered()"),self.loadfile)
+                self.menuFile.addAction(action)
+            self.menuFile.addSeperator()
+            self.menuFile.addAction(menufileactions[-1])
+
+    def addrecentfile(self,filename):
+        if filename is None:
+            return
+        if filename not in self.recentfiles:
+            self.recentfiles.append(filename)
+            while len(self.recentfiles)>3 :
+                self.recentfiles.takeLast()
+
+    def updatestatus(self,message):
+        self.statusBar.showMessage(message)
+        print("right now here")
+        if self.filename is not None:
+            self.setWindowTitle("Serial Assistant - %s" % self.filename)
+
 
     def loadfile(self, filename=None):
         if filename is None:
@@ -76,6 +135,17 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         if filename:
             self.setWindowTitle("Serial Assistant - %s" % filename)
             self.filename = filename
+            self.addrecentfiles(filename)
+            self.fb = open("%s.sa" % self.filename ,"r")
+            line = self.fb.readline()
+            while(line != ""):
+                list =  line.split("=")
+                if (list[0] == "Config"):
+                    self.config = list[1]
+                elif (list[0] == "Sendlist"):
+                    self.sendlist=list[1]
+            self.fb.close()
+            # should check if self.config is valid
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)
@@ -133,8 +203,8 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.ui.actionsettings.triggered.connect(self.__onsettingclicked)
         self.ui.actionNew.triggered.connect(self.__filenew)
         self.ui.actionOpen.triggered.connect(self.__fileopen)
-    #     self.ui.actionSave.triggered.connect(self.__filesaveaction)
-    #
+        self.ui.actionSave.triggered.connect(self.__filesave)
+
     #     self.ui.actionstart.triggered.connect(self.__onportopen)
     #     self.ui.actionstop.triggered.connect(self.__onportpasue)
 

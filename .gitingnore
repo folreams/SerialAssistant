@@ -1,5 +1,4 @@
 #include director
-/.idea
 /__pycache__
 #ingnore files
 *.dat
