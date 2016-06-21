@@ -10,6 +10,7 @@ from qrc_resources import *
 class UiHandle(Ui_Form):
     def __init__(self):
         Ui_Form.__init__(self)
+
     def setupwidget(self):
         self.centralwidget.setLayout(self.verticalLayout)
 
@@ -23,14 +24,17 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
 
     def showport(self):
         self.port.clear()
+        print("showport")
         for port, desc, hwid in comports():
             self.port.addItem(port)
 
     def initsettings(self, settings):
         portsettings = settings["portsettings"]
-        print(portsettings)
-        # index = self.port.findText(portsettings["port"])
-        # self.port.setCurrentIndex(index)
+        for port, desc, hwid in comports():
+            self.port.addItem(port)
+        index = self.port.findText(portsettings["port"])
+        self.port.setCurrentIndex(index)
+
         index = self.baudrate.findText(portsettings["baud"])
         self.baudrate.setCurrentIndex(index)
         index = self.databit.findText(portsettings["databit"])

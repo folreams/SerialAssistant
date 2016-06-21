@@ -15,51 +15,43 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         super(MainWindows, self).__init__()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         MainWindows.Instances.add(self)
+
+        settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
+        self.recentfiles = settings.value("RecentFiles",[])
+        self.config = settings.value("Config", {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
+                                                      "checkbit" : "NONE", "flowcontrol": "OFF"},
+                                      "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
+                                      "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
+        size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
+        self.resize(size)
+        pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
+        self.move(pos)
+        self.flags = {"__isopen": False,"__ispause" : False}
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
         self.setuptoolbar()
         self.__setupsignal()
 
-        settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
-        self.recentfiles = settings.value("RecentFiles",[])
-        size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
-        self.resize(size)
-        pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
-        self.move(pos)
-        self.config = settings.value("Config", {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
-                                                      "checkbit" : "NONE", "flowcontrol": "OFF"},
-                                      "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
-                                      "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
-
         if filename is None:
             filename = "Unnamed-%d" % MainWindows.NextId
             MainWindows.NextId = MainWindows.NextId+1
             self.setWindowTitle("Serial Assistant - %s" % filename)
-            # create project file and log file name
             self.filename = None
-            fb = open("%s.sa" % filename, "w")
-            fb.write("FileName=%s" % filename)
-            fb.write("\n")
-            fb.write("Config=%s" % self.config)
-            fb.close()
         else:
             self.loadfile(filename)
-
-    def __onportopen(self):
-        ser = MySerial.Serial(self.config["portsettings"])
+        self.serial = MySerial()
+        # self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.ui.onRecvData)
 
     def closeEvent(self, event):
-        if self.filename:
-            settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
-            settings.setValue("Lastfile", self.filename)
-            recentfiles= self.recentfiles if self.recentfiles else []
-            settings.setValue("RecentFiles", recentfiles)
-            size = self.size()
-            settings.setValue("MainWindow/Size", QtCore.QSize(size))
-            pos = self.pos()
-            settings.setValue("MainWindow/Position", QtCore.QPoint(pos))
-            settings.setValue("Config", self.config)
+        settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
+        recentfiles= self.recentfiles if self.recentfiles else []
+        settings.setValue("RecentFiles", recentfiles)
+        size = self.size()
+        settings.setValue("MainWindow/Size", QtCore.QSize(size))
+        pos = self.pos()
+        settings.setValue("MainWindow/Position", QtCore.QPoint(pos))
+        settings.setValue("Config", self.config)
 
     def __filenew(self):
         MainWindows().show()
@@ -68,7 +60,12 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         dir = os.path.dirname(self.filename) if self.filename is not None else "."
         filename = QtGui.QFileDialog.getOpenFileName(self, "Serial Assistant -- Open File",dir,"Seria *.sa")
         if filename:
-            MainWindows(filename).show()
+            if self.filename is None :
+                self.filename = filename
+                self.loadfile(filename)
+                print("we are here")
+            else:
+                MainWindows(filename).show()
 
     def __filesave(self):
         if self.filename is None:
@@ -98,7 +95,7 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         current = self.filename if self.filename is not None else None
         recentfiles = []
         for filename in self.recentfiles:
-            if filename != current and QFile.exists(filename):
+            if filename != current and QtGui.QFile.exists(filename):
                 recentfiles.append(filename)
         if recentfiles:
             self.menuFile.addSeperator()
@@ -117,13 +114,12 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         if filename not in self.recentfiles:
             self.recentfiles.append(filename)
             while len(self.recentfiles)>3 :
-                self.recentfiles.takeLast()
+                self.recentfiles.pop()
 
     def updatestatus(self, message):
         # self.statusBar.showMessage(message)
         if self.filename is not None:
             self.setWindowTitle("Serial Assistant - %s" % self.filename)
-
 
     def loadfile(self, filename=None):
         if filename is None:
@@ -139,13 +135,61 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             fb = open(self.filename, "r")
             line = fb.readlines()
             for list in line:
+                list= list.strip()
+                print(list)
                 list = list.split("=")
                 if (list[0] == "Config"):
-                    self.config = list[1]
+                    self.config = eval(list[1])
                 elif (list[0] == "Sendlist"):
-                    self.sendlist=list[1]
+                    self.sendlist = evalu(list[1])
             fb.close()
             # should check if self.config is valid
+
+    def __onportopen(self):
+        if not self.flags["__isopen"]:
+            ret,msg = self.__portopen()
+            if not ret:
+                self.ui.actionstart.setChecked(False)
+                QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
+            else:
+                self.flags["__isopen"] = True
+                self.serial.start()
+        elif self.flags["__ispause"]:
+            self.ui.actionpause.setChecked(False)
+            self.ui.actionstart.setChecked(True)
+            self.flags["__ispause"] = False
+            self.serial.showon()
+
+    def __portopen(self,settings=None):
+        if not settings:
+            settings = self.config["portsettings"]
+        if not settings["port"]:
+            return False,u"错误的端口号"
+        ret,msg = self.serial.open(settings)
+
+    def __onportpause(self):
+        if not self.flags["__isopen"]:
+            QtGui.QMessageBox.critical(self,"Error",u"串口没有打开")
+            self.ui.actionpause.setChecked(False)
+        else:
+            if self.flags["__ispause"]:
+                self.ui.actionpause.setChecked(True)
+            else:
+                self.flags["__ispause"] = True
+                self.ui.actionpause.setChecked(True)
+                self.serial.showoff()
+    def __onportclose(self):
+        if not self.flags["__isopen"]:
+            return
+        else:
+            self.serial.close()
+            self.flags["__isopen"] = False
+            self.flags["__ispause"] = False
+            self.ui.actionstart.setChecked(False)
+            self.ui.actionpause.setChecked(False)
+
+    def __onportclear(self):
+        self.ui.textBrowser.clear()
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)
@@ -158,7 +202,7 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         # set file action icons add add to FileToolBars
 
         self.ui.actionNew.setIcon(QtGui.QIcon(":/file_new.png"))
-        self.ui.actionOpen.setIcon(QtGui.QIcon(":/file_open"))
+        self.ui.actionOpen.setIcon(QtGui.QIcon(":/file_open.png"))
         self.ui.fileToolBar = self.addToolBar("File")
         self.ui.fileToolBar.setIconSize (QtCore.QSize(32,32))
         self.ui.fileToolBar.setObjectName("FileToolBar")
@@ -166,20 +210,18 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.addactions(self.ui.fileToolBar, (self.ui.actionNew, self.ui.actionOpen))
 
         # set edit action Icon and add edit tool bars
+
         self.ui.actionstart.setIcon(QtGui.QIcon(":/edit_play.png"))
-        self.ui.actionstart.setCheckable(True)
-        self.ui.actionstop.setIcon(QtGui.QIcon(":/edit_pause.png"))
-        self.ui.actionstop.setCheckable(True)
+        self.ui.actionpause.setIcon(QtGui.QIcon(":/edit_pause.png"))
         self.ui.actionclose.setIcon(QtGui.QIcon(":/edit_close.png"))
-        self.ui.actionclose.setCheckable(True)
         self.ui.actionclear.setIcon(QtGui.QIcon(":/edit_clear.png"))
-        self.ui.actionclear.setCheckable(True)
+
 
         self.ui.editToolBar = self.addToolBar("Edit")
         self.ui.editToolBar.setObjectName("EditToolBar")
         self.ui.editToolBar.setIconSize (QtCore.QSize(32,32))
         self.ui.editToolBar.setToolButtonStyle(3)
-        self.addactions(self.ui.editToolBar, (self.ui.actionstart, self.ui.actionstop,
+        self.addactions(self.ui.editToolBar, (self.ui.actionstart, self.ui.actionpause,
                                            self.ui.actionclose, self.ui.actionclear))
         # set tools tool bar Icon and  add tools Tool Bar
 
@@ -204,9 +246,10 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.ui.actionNew.triggered.connect(self.__filenew)
         self.ui.actionOpen.triggered.connect(self.__fileopen)
         self.ui.actionSave.triggered.connect(self.__filesave)
-
-    #     self.ui.actionstart.triggered.connect(self.__onportopen)
-    #     self.ui.actionstop.triggered.connect(self.__onportpasue)
+        self.ui.actionstart.triggered.connect(self.__onportopen)
+        self.ui.actionpause.triggered.connect(self.__onportpause)
+        self.ui.actionclose.triggered.connect(self.__onportclose)
+        self.ui.actionclear.triggered.connect(self.__onportclear)
 
 
 

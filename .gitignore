@@ -1,0 +1,6 @@
+#ignore director
+/__pycahe
+
+#ignore files
+*.ini
+*.sa

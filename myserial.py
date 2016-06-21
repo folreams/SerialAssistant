@@ -15,8 +15,8 @@ class MySerial(threading.Thread):
 
     def open(self, settings):
         try:
-            self.serial = Serial(settings["port"],settings["baud"],settings["databit"],settings["checkbit"],
-                             settings["stopbit"],settings["flowcontrol"], timeout = 1)
+            self.serial = Serial(settings["port"],int(settings["baud"]),int(settings["databit"]),
+                                 settings["checkbit"][0],int(settings["stopbit"]),settings["flowcontrol"], timeout = 1)
         except Exception as msg:
             return False,msg
         self.serial.flushInput()

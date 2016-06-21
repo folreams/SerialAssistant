@@ -38,7 +38,7 @@
      <height>400</height>
     </size>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -172,7 +172,7 @@
      <string>编辑</string>
     </property>
     <addaction name="actionstart"/>
-    <addaction name="actionstop"/>
+    <addaction name="actionpause"/>
     <addaction name="actionclose"/>
     <addaction name="actionclear"/>
    </widget>
@@ -224,6 +224,9 @@
    </property>
   </action>
   <action name="actionstart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>开始</string>
    </property>
@@ -237,7 +240,10 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionstop">
+  <action name="actionpause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>暂停</string>
    </property>
@@ -246,6 +252,9 @@
    </property>
   </action>
   <action name="actionclose">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>停止</string>
    </property>
