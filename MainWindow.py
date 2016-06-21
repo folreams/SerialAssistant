@@ -1,4 +1,7 @@
 # -*- coding : utf-8 -*-
+__Version__ = "V1.0"
+__Author__  = "DayuZhang"
+__Email__ = "folreams@gmail.com"
 
 import os
 import shelve
@@ -7,26 +10,26 @@ from ui_handle import UiHandle,DlgHandle
 from PyQt4 import QtGui, QtCore
 
 
-class MainWindows(QtGui.QMainWindow,UiHandle):
+class MainWindows(QtGui.QMainWindow, UiHandle):
     NextId = 1
     Instances = set()
 
-    def __init__(self,filename = None,parent=None):
+    def __init__(self, filename=None, parent=None):
         super(MainWindows, self).__init__()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         MainWindows.Instances.add(self)
 
         settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
         self.recentfiles = settings.value("RecentFiles",[])
-        self.config = settings.value("Config", {"portsettings": {"port":None, "baud":"9600","databit":"8", "stopbit":"1",
-                                                      "checkbit" : "NONE", "flowcontrol": "OFF"},
+        self.config = settings.value("Config", {"portsettings": {"port": None, "baud": "9600","databit":"8", "stopbit":"1",
+                                                      "checkbit": "NONE", "flowcontrol": "OFF"},
                                       "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
                                       "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
         size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
         self.resize(size)
         pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
         self.move(pos)
-        self.flags = {"__isopen": False,"__ispause" : False}
+        self.flags = {"__isopen": False, "__ispause": False}
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
@@ -58,12 +61,11 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
 
     def __fileopen(self):
         dir = os.path.dirname(self.filename) if self.filename is not None else "."
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Serial Assistant -- Open File",dir,"Seria *.sa")
+        filename = QtGui.QFileDialog.getOpenFileName(self,"Serial Assistant -- Open File", dir, "Serial *.sa")
         if filename:
-            if self.filename is None :
+            if self.filename is None:
                 self.filename = filename
                 self.loadfile(filename)
-                print("we are here")
             else:
                 MainWindows(filename).show()
 
@@ -100,8 +102,8 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         if recentfiles:
             self.menuFile.addSeperator()
             for i, filename in enumberate(recentfiles):
-                action = QtCore.QAction(QtGui.QIcon(":/icon.png"),"&%d %s"
-                                         % (i+1,QtGui.QFileInfo(filename).fileName()), self)
+                action = QtCore.QAction(QtGui.QIcon(":/icon.png"), "&%d %s"
+                                         % (i+1, QtGui.QFileInfo(filename).fileName()), self)
                 action.setData(QtCore.QVariant(fileanme))
                 self.connect(action, QtCore.SIGNAL("triggered()"), self.loadfile)
                 self.menuFile.addAction(action)
@@ -136,7 +138,6 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             line = fb.readlines()
             for list in line:
                 list= list.strip()
-                print(list)
                 list = list.split("=")
                 if (list[0] == "Config"):
                     self.config = eval(list[1])
@@ -160,7 +161,7 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
             self.flags["__ispause"] = False
             self.serial.showon()
 
-    def __portopen(self,settings=None):
+    def __portopen(self, settings=None):
         if not settings:
             settings = self.config["portsettings"]
         if not settings["port"]:
@@ -190,6 +191,12 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
 
     def __onportclear(self):
         self.ui.textBrowser.clear()
+
+    def __onabout(self):
+        QtGui.QMessageBox.about(self,"About Serial Assistant", """<b>Serial Assistant</b> %s
+        <p>Author : %s
+        <p>Email : %s
+        <p>Copyright &copy;2016All right resevered""" % (__Version__, __Author__, __Email__))
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)
@@ -250,6 +257,7 @@ class MainWindows(QtGui.QMainWindow,UiHandle):
         self.ui.actionpause.triggered.connect(self.__onportpause)
         self.ui.actionclose.triggered.connect(self.__onportclose)
         self.ui.actionclear.triggered.connect(self.__onportclear)
+        self.ui.actionabout.triggered.connect(self.__onabout)
 
 
 

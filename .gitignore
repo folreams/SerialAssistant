@@ -1,5 +1,5 @@
 #ignore director
-/__pycahe
+/__pycache__
 
 #ignore files
 *.ini

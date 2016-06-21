@@ -1,7 +1,4 @@
-#----coding utf8-----------------------------
-__Version__ = "V1.0"
-__Author__  = "DayuZhang"
-__email__ = "folreams@gmail.com"
+# -*---------coding utf8----------------*-
 
 import sys
 from PyQt4 import QtGui
