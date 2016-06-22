@@ -1,6 +1,7 @@
 #*-coding utf8-*
 from binascii import hexlify,  unhexlify
 
+
 def checkData(data, _type):
     if data == '':
         return False, u"数据不能为空"

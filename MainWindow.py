@@ -44,9 +44,6 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.filename = None
         else:
             self.loadfile(filename)
-        self.serial = MySerial()
-        self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.onrecv)
-
 
     def closeEvent(self, event):
         settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
@@ -138,19 +135,19 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.addrecentfile(filename)
             fb = open(self.filename, "r")
             line = fb.readlines()
-            for list in line:
-                list= list.strip()
-                list = list.split("=")
-                if (list[0] == "Config"):
+            for lp in line:
+                lp = lp.strip()
+                lp = lp.split("=")
+                if (lp[0] == "Config"):
                     self.config = eval(list[1])
-                elif (list[0] == "Sendlist"):
-                    self.sendlist = evalu(list[1])
+                elif (lp[0] == "Sendlist"):
+                    self.sendlist = eval(lp[1])
             fb.close()
             # should check if self.config is valid
 
     def __onportopen(self):
         if not self.flags["__isopen"]:
-            ret,msg = self.__portopen()
+            ret, msg = self.__portopen()
             if not ret:
                 self.ui.actionstart.setChecked(False)
                 QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
@@ -168,8 +165,10 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             settings = self.config["portsettings"]
         if not settings["port"]:
             return False,u"错误的端口号"
+        self.serial = MySerial()
+        self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.onrecv)
         ret,msg = self.serial.open(settings)
-        return ret,msg
+        return ret, msg
 
     def __onportpause(self):
         if not self.flags["__isopen"]:
@@ -183,6 +182,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 self.ui.actionpause.setChecked(True)
                 self.ui.actionstart.setChecked(False)
                 self.serial.showoff()
+
     def __onportclose(self):
         if not self.flags["__isopen"]:
             return
@@ -202,7 +202,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         <p>Email : %s
         <p>Copyright &copy;2016All right resevered""" % (__Version__, __Author__, __Email__))
 
-    def onrecv(self,data):
+    def onrecv(self, data):
         recvconfig = self.config["recvsettings"]
         if not recvconfig["recvascii"]:
             data =Util.toVisualHex(data)
@@ -213,15 +213,16 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.ui.textbrowser.insertPlainText(data)
         else:
             self.ui.textbrowser.append(data)
-    def __onsend(self,data):
+
+    def __onsend(self, data):
         if not self.flags["__isopen"]:
-            QtGui.QMessageBox.critical(self,"Error",u"请先打开串口")
+            QtGui.QMessageBox.critical(self,"Error", u"请先打开串口")
             return
         data =  self.ui.textEdit.toPlainText()
         type = self.config["sendsettings"]["sendascii"]
         ret,msg = Util.checkData(data,type)
         if not ret:
-            QtGui.QMessageBox.critical(self,"Error",u"%s" %msg)
+            QtGui.QMessageBox.critical(self,"Error",u"%s" %msg )
             return
         if type == "hex":
             data = Util.toHex(''.join(data.split()))
@@ -229,9 +230,9 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
  #rx display
         if self.config["recvsettings"]["showsend"]:
             if self.config["recvsettings"]["recvascii"] == "ascii":
-                data = data.replace('\n','<br/>')
+                data = data.replace(b"\n", b'<br/>')
             else:
-                data = "".join(data.split( ))
+                data = "".join(data.split())
                 data = "".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
 
             if self.config["recvsettings"]["showtime"]:
@@ -263,20 +264,18 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionpause.setIcon(QtGui.QIcon(":/edit_pause.png"))
         self.ui.actionclose.setIcon(QtGui.QIcon(":/edit_close.png"))
         self.ui.actionclear.setIcon(QtGui.QIcon(":/edit_clear.png"))
-
-
         self.ui.editToolBar = self.addToolBar("Edit")
         self.ui.editToolBar.setObjectName("EditToolBar")
         self.ui.editToolBar.setIconSize (QtCore.QSize(32,32))
         self.ui.editToolBar.setToolButtonStyle(3)
         self.addactions(self.ui.editToolBar, (self.ui.actionstart, self.ui.actionpause,
-                                           self.ui.actionclose, self.ui.actionclear))
+                                              self.ui.actionclose, self.ui.actionclear))
         # set tools tool bar Icon and  add tools Tool Bar
 
         self.ui.actionsettings.setIcon(QtGui.QIcon(":/tool_config.png"))
         self.ui.toolsToolBar = self.addToolBar("Tools")
         self.ui.toolsToolBar.setObjectName("ToolsToolBar")
-        self.ui.toolsToolBar.setIconSize (QtCore.QSize(32,32))
+        self.ui.toolsToolBar.setIconSize(QtCore.QSize(32, 32))
         self.ui.toolsToolBar.setToolButtonStyle(3)
         self.ui.toolsToolBar.addAction(self.ui.actionsettings)
 

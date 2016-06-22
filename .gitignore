@@ -1,5 +1,5 @@
 #ignore director
-/__pycache__
+./__pycache__
 
 #ignore files
 *.ini

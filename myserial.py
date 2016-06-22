@@ -39,7 +39,7 @@ class MySerial(threading.Thread):
     def __recv(self):
         data, quit = None,False
         while 1:
-            if self.__terminate :
+            if self.__terminate:
                 break
             data = self.serial.read(1)
             if data == b'':
