@@ -11,6 +11,8 @@ class UiHandle(Ui_Form):
     def __init__(self):
         Ui_Form.__init__(self)
 
+    def getdatatpe(self):
+        data = self.textedit.toPlainText()
     def setupwidget(self):
         self.centralwidget.setLayout(self.verticalLayout)
 
@@ -46,12 +48,18 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
         index = self.flowcontrol.findText(portsettings["flowcontrol"])
         self.flowcontrol.setCurrentIndex(index)
         recvsettings = settings["recvsettings"]
-        self.recvascii.setChecked(recvsettings["recvascii"])
+        if recvsettings == "ascii":
+            self.recvascii.setChecked (True)
+        else:
+            self.recvascii.setChecked (False)
         self.wrapline.setChecked(recvsettings["wrapline"])
         self.showsend.setChecked(recvsettings["showsend"])
         self.showtime.setChecked(recvsettings["showtime"])
         sendsettings = settings["sendsettings"]
-        self.sendascii.setChecked(sendsettings["sendascii"])
+        if sendsettings == "ascii":
+            self.sendascii.setChecked (True)
+        else:
+            self.sendascii.setChecked (False)
         self.repeat.setChecked(sendsettings["repeat"])
         self.interval.setValue(sendsettings["interval"])
 
@@ -66,15 +74,21 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
         return settings
 
     def getrecvsettings(self):
-        settings = {"recvascii":True,"wrapline":True,"showsend":False,"showtime":False}
-        settings["recvascii"] = self.recvascii.isChecked()
+        settings = {"recvascii":"ascii","wrapline":True,"showsend":False,"showtime":False}
+        if self.recvascii.isChecked():
+            settings["recvascii"] = "ascii"
+        else:
+             settings["recvascii"] = "hex"
         settings["wrapline"] = self.wrapline.isChecked()
         settings["showsend"] = self.showsend.isChecked()
         settings["showtime"] =  self.showtime.isChecked()
         return settings
     def getsendsettings(self):
-        settings = {"sendascii":True,"repeat":False,"interval":1000}
-        settings["sendascii"] =  self.sendascii.isChecked()
+        settings = {"sendascii":"ascii","repeat":False,"interval":1000}
+        if self.sendascii.isChecked():
+            settings["sendascii"] = "ascii"
+        else:
+             settings["sendascii"] = "hex"
         settings["repeat"] = self.repeat.isChecked()
         settings["interval"] = self.interval.value()
         return settings

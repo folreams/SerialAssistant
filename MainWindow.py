@@ -4,7 +4,8 @@ __Author__  = "DayuZhang"
 __Email__ = "folreams@gmail.com"
 
 import os
-import shelve
+import Util
+from time import ctime
 from myserial import MySerial
 from ui_handle import UiHandle,DlgHandle
 from PyQt4 import QtGui, QtCore
@@ -22,7 +23,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
         self.recentfiles = settings.value("RecentFiles",[])
         self.config = settings.value("Config", {"portsettings": {"port": None, "baud": "9600","databit":"8", "stopbit":"1",
-                                                      "checkbit": "NONE", "flowcontrol": "OFF"},
+                                                      "checkbit": "NONE", "flowcontrol": "OFF","timeout":1},
                                       "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
                                       "sendsettings": {"sendascii": True,"repeat": False, "interval": 1000} })
         size = settings.value("MainWindow/Size", QtCore.QSize(720,576))
@@ -44,7 +45,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         else:
             self.loadfile(filename)
         self.serial = MySerial()
-        # self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.ui.onRecvData)
+        self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.onrecv)
+
 
     def closeEvent(self, event):
         settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
@@ -167,6 +169,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         if not settings["port"]:
             return False,u"错误的端口号"
         ret,msg = self.serial.open(settings)
+        return ret,msg
 
     def __onportpause(self):
         if not self.flags["__isopen"]:
@@ -178,6 +181,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             else:
                 self.flags["__ispause"] = True
                 self.ui.actionpause.setChecked(True)
+                self.ui.actionstart.setChecked(False)
                 self.serial.showoff()
     def __onportclose(self):
         if not self.flags["__isopen"]:
@@ -197,6 +201,43 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         <p>Author : %s
         <p>Email : %s
         <p>Copyright &copy;2016All right resevered""" % (__Version__, __Author__, __Email__))
+
+    def onrecv(self,data):
+        recvconfig = self.config["recvsettings"]
+        if not recvconfig["recvascii"]:
+            data =Util.toVisualHex(data)
+        else:
+            data =data.replace("/n","<br>")
+        if not recvconfig["wrapline"]:
+            self.ui.textbrowser.moveCursor(QTextCursor.End)
+            self.ui.textbrowser.insertPlainText(data)
+        else:
+            self.ui.textbrowser.append(data)
+    def __onsend(self,data):
+        if not self.flags["__isopen"]:
+            QtGui.QMessageBox.critical(self,"Error",u"请先打开串口")
+            return
+        data =  self.ui.textEdit.toPlainText()
+        type = self.config["sendsettings"]["sendascii"]
+        ret,msg = Util.checkData(data,type)
+        if not ret:
+            QtGui.QMessageBox.critical(self,"Error",u"%s" %msg)
+            return
+        if type == "hex":
+            data = Util.toHex(''.join(data.split()))
+        self.serial.send(data)
+ #rx display
+        if self.config["recvsettings"]["showsend"]:
+            if self.config["recvsettings"]["recvascii"] == "ascii":
+                data = data.replace('\n','<br/>')
+            else:
+                data = "".join(data.split( ))
+                data = "".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
+
+            if self.config["recvsettings"]["showtime"]:
+                self.ui.textBrowser.append("<b>[Send @ %s]</b> %s" % (ctime(),data))
+            else:
+                self.ui.textBrowser.append("<b>[Send}</b> %s" % data)
 
     def __onsettingclicked(self):
         dialog = DlgHandle(self.config)
@@ -258,6 +299,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionclose.triggered.connect(self.__onportclose)
         self.ui.actionclear.triggered.connect(self.__onportclear)
         self.ui.actionabout.triggered.connect(self.__onabout)
+        self.ui.pushButton.clicked.connect(self.__onsend)
 
 
 
