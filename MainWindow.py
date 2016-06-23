@@ -1,5 +1,5 @@
 # -*- coding : utf-8 -*-
-__Version__ = "V1.0"
+__Version__ = "V0.1"
 __Author__  = "DayuZhang"
 __Email__ = "folreams@gmail.com"
 
@@ -153,6 +153,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
             else:
                 self.flags["__isopen"] = True
+                print("serial is start")
                 self.serial.start()
         elif self.flags["__ispause"]:
             self.ui.actionpause.setChecked(False)
@@ -204,15 +205,16 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
 
     def onrecv(self, data):
         recvconfig = self.config["recvsettings"]
+        data =data.decode()
         if not recvconfig["recvascii"]:
             data =Util.toVisualHex(data)
         else:
             data =data.replace("/n","<br>")
         if not recvconfig["wrapline"]:
-            self.ui.textbrowser.moveCursor(QTextCursor.End)
-            self.ui.textbrowser.insertPlainText(data)
+            self.ui.textBrowser.moveCursor(QtGui.QTextCursor.End)
+            self.ui.textBrowser.insertPlainText(data)
         else:
-            self.ui.textbrowser.append(data)
+            self.ui.textBrowser.append(data)
 
     def __onsend(self, data):
         if not self.flags["__isopen"]:
@@ -226,11 +228,13 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             return
         if type == "hex":
             data = Util.toHex(''.join(data.split()))
+        else:
+            data = data.encode()
         self.serial.send(data)
  #rx display
         if self.config["recvsettings"]["showsend"]:
             if self.config["recvsettings"]["recvascii"] == "ascii":
-                data = data.replace(b"\n", b'<br/>')
+                data = data.replace("/n", '<br/>')
             else:
                 data = "".join(data.split())
                 data = "".join([data[i:i+2] for i in range(0,len(data),2)]).upper()

@@ -48,6 +48,7 @@ class MySerial(threading.Thread):
                 sleep(0.3)
                 n = self.serial.inWaiting()
                 if n>0 :
+                    print(data)
                     data = data + self.serial.read(n)
                 else:
                     quit = True

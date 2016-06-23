@@ -1,6 +1,6 @@
 #ignore director
-./__pycache__
-
+/__pycache__
+/SerialAssistant
 #ignore files
 *.ini
 *.sa
