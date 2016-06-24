@@ -26,7 +26,6 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
 
     def showport(self):
         self.port.clear()
-        print("showport")
         for port, desc, hwid in comports():
             self.port.addItem(port)
 

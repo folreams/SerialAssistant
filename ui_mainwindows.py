@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui_mainwindows.ui'
 #
-# Created: Tue Jun 21 15:45:35 2016
+# Created: Fri Jun 24 13:34:07 2016
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,11 +41,11 @@ class Ui_Form(object):
         self.layoutWidget.setGeometry(QtCore.QRect(0, -3, 714, 421))
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.verticalLayout = QtGui.QVBoxLayout(self.layoutWidget)
-        self.verticalLayout.setSpacing(5)
+        self.verticalLayout.setSpacing(6)
         self.verticalLayout.setContentsMargins(5, -1, -1, 0)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.textBrowser = QtGui.QTextBrowser(self.layoutWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.textBrowser.sizePolicy().hasHeightForWidth())
@@ -61,7 +61,7 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(0, 0, 17, -1)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.textEdit = QtGui.QTextEdit(self.layoutWidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.textEdit.sizePolicy().hasHeightForWidth())

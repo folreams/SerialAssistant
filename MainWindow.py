@@ -22,6 +22,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
 
         settings = QtCore.QSettings("./settings.ini", QtCore.QSettings.IniFormat)
         self.recentfiles = settings.value("RecentFiles",[])
+        if type(self.recentfiles) != list:
+            self.recentfiles = []
         self.config = settings.value("Config", {"portsettings": {"port": None, "baud": "9600","databit":"8", "stopbit":"1",
                                                       "checkbit": "NONE", "flowcontrol": "OFF","timeout":1},
                                       "recvsettings": {"recvascii": True,"wrapline": True,"showsend": False, "showtime": False},
@@ -89,26 +91,6 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.filename = filename
             self.__filesave()
 
-    def updatefilemenu(self):
-        self.menuFile.clear()
-        menufileactions =(self.actionNew, self.actionOpen, self.actionSave, self.actionQuit)
-        self.addactions(self.menuFile,menufileactions[:-1])
-        current = self.filename if self.filename is not None else None
-        recentfiles = []
-        for filename in self.recentfiles:
-            if filename != current and QtGui.QFile.exists(filename):
-                recentfiles.append(filename)
-        if recentfiles:
-            self.menuFile.addSeperator()
-            for i, filename in enumberate(recentfiles):
-                action = QtCore.QAction(QtGui.QIcon(":/icon.png"), "&%d %s"
-                                         % (i+1, QtGui.QFileInfo(filename).fileName()), self)
-                action.setData(QtCore.QVariant(fileanme))
-                self.connect(action, QtCore.SIGNAL("triggered()"), self.loadfile)
-                self.menuFile.addAction(action)
-            self.menuFile.addSeperator()
-            self.menuFile.addAction(menufileactions[-1])
-
     def addrecentfile(self, filename):
         if filename is None:
             return
@@ -139,7 +121,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 lp = lp.strip()
                 lp = lp.split("=")
                 if (lp[0] == "Config"):
-                    self.config = eval(list[1])
+                    self.config = eval(lp[1])
                 elif (lp[0] == "Sendlist"):
                     self.sendlist = eval(lp[1])
             fb.close()
@@ -153,7 +135,6 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
             else:
                 self.flags["__isopen"] = True
-                print("serial is start")
                 self.serial.start()
         elif self.flags["__ispause"]:
             self.ui.actionpause.setChecked(False)
@@ -226,19 +207,20 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         if not ret:
             QtGui.QMessageBox.critical(self,"Error",u"%s" %msg )
             return
+        if self.config["recvsettings"]["showsend"]:
+            self.__ondatasend(data,self.config["recvsettings"]["recvascii"])
         if type == "hex":
             data = Util.toHex(''.join(data.split()))
         else:
             data = data.encode()
         self.serial.send(data)
  #rx display
-        if self.config["recvsettings"]["showsend"]:
-            if self.config["recvsettings"]["recvascii"] == "ascii":
+    def __ondatasend(self,data, __type="ascii"):
+            if __type == "ascii":
                 data = data.replace("/n", '<br/>')
             else:
                 data = "".join(data.split())
                 data = "".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
-
             if self.config["recvsettings"]["showtime"]:
                 self.ui.textBrowser.append("<b>[Send @ %s]</b> %s" % (ctime(),data))
             else:
@@ -253,14 +235,17 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
 
     def setuptoolbar(self):
         # set file action icons add add to FileToolBars
+        self.connect(self.ui.menuFile,QtCore.SIGNAL("aboutToShow()"),self.updatefilemenu)
 
         self.ui.actionNew.setIcon(QtGui.QIcon(":/file_new.png"))
         self.ui.actionOpen.setIcon(QtGui.QIcon(":/file_open.png"))
+        self.ui.actionSave.setIcon(QtGui.QIcon(":/file_save.png"))
+        self.ui.actionQuit.setIcon(QtGui.QIcon(":/file_quit.png"))
         self.ui.fileToolBar = self.addToolBar("File")
         self.ui.fileToolBar.setIconSize (QtCore.QSize(32,32))
         self.ui.fileToolBar.setObjectName("FileToolBar")
         self.ui.fileToolBar.setToolButtonStyle(3)
-        self.addactions(self.ui.fileToolBar, (self.ui.actionNew, self.ui.actionOpen))
+        self.addactions(self.ui.fileToolBar, (self.ui.actionNew, self.ui.actionOpen,self.ui.actionSave,self.ui.actionQuit))
 
         # set edit action Icon and add edit tool bars
 
@@ -283,6 +268,28 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.toolsToolBar.setToolButtonStyle(3)
         self.ui.toolsToolBar.addAction(self.ui.actionsettings)
 
+        self.ui.actionabout.setIcon(QtGui.QIcon(":/about.png"))
+
+    def updatefilemenu(self):
+        self.ui.menuFile.clear()
+        menufileactions =(self.ui.actionNew, self.ui.actionOpen, self.ui.actionSave, self.ui.actionQuit)
+        self.addactions(self.ui.menuFile,menufileactions[:-1])
+        current = self.filename if self.filename is not None else None
+        recentfiles = []
+        for filename in self.recentfiles:
+            if filename != current and QtCore.QFile.exists(filename):
+                recentfiles.append(filename)
+        if recentfiles:
+            self.ui.menuFile.addSeparator()
+            for i, filename in enumerate(recentfiles):
+                action = QtGui.QAction(QtGui.QIcon(":/icon.png"), "&%d %s"
+                                         % (i+1, QtCore.QFileInfo(filename).fileName()), self)
+                action.setData(filename)
+                self.connect(action, QtCore.SIGNAL("triggered()"), self.loadfile)
+                self.ui.menuFile.addAction(action)
+
+        self.ui.menuFile.addSeparator()
+        self.ui.menuFile.addAction(menufileactions[-1])
 
     @staticmethod
     def addactions(target, actions):
@@ -297,6 +304,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionNew.triggered.connect(self.__filenew)
         self.ui.actionOpen.triggered.connect(self.__fileopen)
         self.ui.actionSave.triggered.connect(self.__filesave)
+        self.ui.actionQuit.triggered.connect(self.close)
         self.ui.actionstart.triggered.connect(self.__onportopen)
         self.ui.actionpause.triggered.connect(self.__onportpause)
         self.ui.actionclose.triggered.connect(self.__onportclose)

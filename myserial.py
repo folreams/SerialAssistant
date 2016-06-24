@@ -45,10 +45,9 @@ class MySerial(threading.Thread):
             if data == b'':
                 return
             while True:
-                sleep(0.3)
+                sleep(0.03)
                 n = self.serial.inWaiting()
                 if n>0 :
-                    print(data)
                     data = data + self.serial.read(n)
                 else:
                     quit = True

@@ -1,0 +1,144 @@
+[33mcommit 7763757cf81601b2e02d9b4067cf5bb6326a66ca[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Thu Jun 23 17:15:03 2016 +0800
+
+    update serial interface program
+
+[33mcommit a3fd11bb685fd69e5cc98115ad8e19e057302a34[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Thu Jun 23 06:23:52 2016 +0800
+
+    move the serial thread init to portopen function
+
+[33mcommit 60dda495b041db227038cbd499c8677cb2a81432[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 22 17:21:26 2016 +0800
+
+    add serial handle
+
+[33mcommit d0476c34df9129afd53320fc12c4fb5fe6c89ac8[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 22 06:38:32 2016 +0800
+
+    update about message box
+
+[33mcommit 6267e9c6b9996de24111d63a0315abde8eb8d463[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Tue Jun 21 17:10:01 2016 +0800
+
+    fixed file action issue&add edit action
+
+[33mcommit c3876ed5772c60c699a27b32c6dd63558d798958[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Tue Jun 21 07:01:59 2016 +0800
+
+    save and open file
+
+[33mcommit b310412ec2b530d7212545d78bf571a1369a2945[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Mon Jun 20 17:39:07 2016 +0800
+
+    fix gitignore
+
+[33mcommit d93fc4d24c65152accd3496a1f2c1d3a7eaacb73[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Mon Jun 20 17:36:03 2016 +0800
+
+    creat project file
+
+[33mcommit aeb53b41f9178babce0f952b1d591a09303a0415[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Mon Jun 20 07:21:22 2016 +0800
+
+    update gitignore
+
+[33mcommit 112d5d72109625a8f79eaa2cc65a6e56e330d6b6[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Mon Jun 20 07:16:41 2016 +0800
+
+    update file action
+
+[33mcommit 3f6058490a9a067c358edc89a5e596c65f5aada2[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Fri Jun 17 17:09:47 2016 +0800
+
+    file menu operate
+
+[33mcommit 7ffd7bc72abc2b60b13873f0096a547eb309d0d9[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Thu Jun 16 17:16:47 2016 +0800
+
+    file action handle
+
+[33mcommit bff9d68b3856624c085f67da26d74f0b9aafc65e[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Thu Jun 16 07:10:56 2016 +0800
+
+    single document
+
+[33mcommit 470d9242f73d69bb7f1136f402281723eea9713b[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 15 13:56:40 2016 +0800
+
+    add mainwindow settings
+
+[33mcommit d97ac4eca55dd5c99fa8491198554f0cad8af6e5[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Mon Jun 13 17:38:20 2016 +0800
+
+     change the ui sturcture
+
+[33mcommit 6ca7ef8d97e6d62ddf8c03fb25a08eb676b8ccf0[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Sun Jun 12 21:58:40 2016 +0800
+
+    fixed merge issue
+
+[33mcommit 3f99d410d4531fb010b1def64adc242ad008a25c[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Sun Jun 12 21:43:18 2016 +0800
+
+     fixed warnings
+
+[33mcommit 392dc3a5077069fa58e5d2fb96a63d0e81688665[m
+Merge: db12854 7493c07
+Author: DayuZhang <folreams@gmail.com>
+Date:   Sun Jun 12 21:40:12 2016 +0800
+
+    Merge branch 'master' of github.com:folreams/SerialAssistant
+
+[33mcommit db1285474d8843d38bab1808f0a7577a309ca16b[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Sun Jun 12 21:34:50 2016 +0800
+
+    change warnings
+
+[33mcommit 7493c07aa8fc571899e231d489650e96aa4a61df[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Sun Jun 12 17:09:16 2016 +0800
+
+    add myserial function and setting dialog
+
+[33mcommit 7e999228ae934d4b255293a9070f103867edc3d3[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 8 17:34:37 2016 +0800
+
+    add QDialog settings
+
+[33mcommit 0c3b1d3cef939b16b6808b3a88c5eeaa5f1898bc[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 8 15:40:52 2016 +0800
+
+    add QIcon files
+
+[33mcommit c0fb9a6bf26843b17f32ccc7cbae20cdf4ae8823[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 8 14:44:14 2016 +0800
+
+     add gitingnore
+
+[33mcommit 6aedd4f5666cb1709e8ddc4d0d0414b2b2983871[m
+Author: DayuZhang <folreams@gmail.com>
+Date:   Wed Jun 8 14:41:11 2016 +0800
+
+    the first commit, add the ui

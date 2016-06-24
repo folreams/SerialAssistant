@@ -27,7 +27,6 @@ except AttributeError:
 class PortComboBox(QtGui.QComboBox):
     def showPopup(self):
         self.emit(QtCore.SIGNAL("portPopupShow()"))
-        print("send popup signal")
         QtGui.QComboBox.showPopup(self)
     def hidePopup(self):
         QtGui.QComboBox.hidePopup(self)
