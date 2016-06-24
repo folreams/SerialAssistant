@@ -48,6 +48,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.loadfile(filename)
 
     def closeEvent(self, event):
+        self.__onportclose()
         settings = QtCore.QSettings("./settings.ini",QtCore.QSettings.IniFormat)
         recentfiles= self.recentfiles if self.recentfiles else []
         settings.setValue("RecentFiles", recentfiles)
