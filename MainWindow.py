@@ -33,6 +33,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
         self.move(pos)
         self.flags = {"__isopen": False, "__ispause": False}
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)
         self.ui = UiHandle()
         self.ui.setupUi(self)
         self.ui.setupwidget()
@@ -170,11 +172,14 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         if not self.flags["__isopen"]:
             return
         else:
+            if self.timer.isActive ():
+                self.timer.stop()
             self.serial.close()
             self.flags["__isopen"] = False
             self.flags["__ispause"] = False
             self.ui.actionstart.setChecked(False)
             self.ui.actionpause.setChecked(False)
+            self.ui.actionsettings.setDisabled(False)
 
     def __onportclear(self):
         self.ui.textBrowser.clear()
@@ -183,7 +188,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         QtGui.QMessageBox.about(self,"About Serial Assistant", """<b>Serial Assistant</b> %s
         <p>Author : %s
         <p>Email : %s
-        <p>Copyright &copy;2016All right resevered""" % (__Version__, __Author__, __Email__))
+        <p>Copyright &copy;2016 All right resevered""" % (__Version__, __Author__, __Email__))
 
     def onrecv(self, data):
         recvconfig = self.config["recvsettings"]
@@ -198,7 +203,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         else:
             self.ui.textBrowser.append(data)
 
-    def __onsend(self, data):
+    def __onsend(self):
         if not self.flags["__isopen"]:
             QtGui.QMessageBox.critical(self,"Error", u"请先打开串口")
             return
@@ -215,6 +220,9 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         else:
             data = data.encode()
         self.serial.send(data)
+        if self.config["sendsettings"]["repeat"]:
+            interval = self.config["sendsettings"]["interval"]
+            self.timer.start(interval)
  #rx display
     def __ondatasend(self,data, __type="ascii"):
             if __type == "ascii":
@@ -312,6 +320,4 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionclear.triggered.connect(self.__onportclear)
         self.ui.actionabout.triggered.connect(self.__onabout)
         self.ui.pushButton.clicked.connect(self.__onsend)
-
-
-
+        self.connect(self.timer,QtCore.SIGNAL("timeout()"),self.__onsend)

@@ -73,5 +73,3 @@ class MySerial(threading.Thread):
 
 
 
-
-
