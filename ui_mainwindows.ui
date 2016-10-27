@@ -41,22 +41,13 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>-3</y>
-      <width>714</width>
-      <height>421</height>
+      <x>5</x>
+      <y>-2</y>
+      <width>710</width>
+      <height>439</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="spacing">
-      <number>6</number>
-     </property>
-     <property name="leftMargin">
-      <number>5</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
      <item>
       <widget class="QTextBrowser" name="textBrowser">
        <property name="sizePolicy">
@@ -142,7 +133,7 @@
      <x>0</x>
      <y>0</y>
      <width>720</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -156,6 +147,11 @@
      <width>0</width>
      <height>24</height>
     </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>10</pointsize>
+    </font>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -193,23 +189,17 @@
    <addaction name="menu_Tool"/>
    <addaction name="menu_Help"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="minimumSize">
-    <size>
-     <width>0</width>
-     <height>24</height>
-    </size>
-   </property>
-   <property name="sizeIncrement">
-    <size>
-     <width>0</width>
-     <height>24</height>
-    </size>
-   </property>
-  </widget>
   <action name="actionNew">
    <property name="text">
     <string>新建</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -218,6 +208,14 @@
   <action name="actionOpen">
    <property name="text">
     <string>打开</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -234,7 +232,15 @@
     <string>打开串口</string>
    </property>
    <property name="statusTip">
-    <string>打开串口</string>
+    <string/>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -246,6 +252,14 @@
    </property>
    <property name="text">
     <string>暂停</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -261,6 +275,14 @@
    <property name="toolTip">
     <string>关闭串口</string>
    </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
    </property>
@@ -272,6 +294,14 @@
    <property name="toolTip">
     <string>设置串口</string>
    </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="shortcut">
     <string>F2</string>
    </property>
@@ -280,6 +310,14 @@
    <property name="text">
     <string>关于</string>
    </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="shortcut">
     <string>F12</string>
    </property>
@@ -287,6 +325,14 @@
   <action name="actionclear">
    <property name="text">
     <string>清除</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
   </action>
   <action name="actiondraw">
@@ -298,10 +344,26 @@
    <property name="text">
     <string>保存</string>
    </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
+   </property>
   </action>
   <action name="actionQuit">
    <property name="text">
     <string>关闭</string>
+   </property>
+   <property name="font">
+    <font>
+     <family>微软雅黑</family>
+     <pointsize>10</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
+    </font>
    </property>
   </action>
  </widget>

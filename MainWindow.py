@@ -33,6 +33,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         pos = settings.value("MainWindow/Position", QtCore.QPoint(100,100))
         self.move(pos)
         self.flags = {"__isopen": False, "__ispause": False}
+        self.txnum = 0
+        self.rxnum = 0
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.ui = UiHandle()
@@ -40,6 +42,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.setupwidget()
         self.setuptoolbar()
         self.__setupsignal()
+        self.createStatusBar()
 
         if filename is None:
             filename = "Unnamed-%d" % MainWindows.NextId
@@ -48,6 +51,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.filename = None
         else:
             self.loadfile(filename)
+        self.statusmessage.setText("%s CLOSED" %self.config["portsettings"]["port"])
 
     def closeEvent(self, event):
         self.__onportclose()
@@ -139,11 +143,21 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             else:
                 self.flags["__isopen"] = True
                 self.serial.start()
+                self.statusmessage.setText("%s-%s-%s-%s-%s OPENED" %(self.config["portsettings"]["port"],
+                                                                 self.config["portsettings"]["baud"],
+                                                                 self.config["portsettings"]["databit"],
+                                                                 self.config["portsettings"]["checkbit"],
+                                                                 self.config["portsettings"]["stopbit"]))
         elif self.flags["__ispause"]:
             self.ui.actionpause.setChecked(False)
             self.ui.actionstart.setChecked(True)
             self.flags["__ispause"] = False
             self.serial.showon()
+            self.statusmessage.setText("%s-%s-%s-%s-%s OPENED" %(self.config["portsettings"]["port"],
+                                                                 self.config["portsettings"]["baud"],
+                                                                 self.config["portsettings"]["databit"],
+                                                                 self.config["portsettings"]["checkbit"],
+                                                                 self.config["portsettings"]["stopbit"]))
 
     def __portopen(self, settings=None):
         if not settings:
@@ -167,7 +181,6 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 self.ui.actionpause.setChecked(True)
                 self.ui.actionstart.setChecked(False)
                 self.serial.showoff()
-
     def __onportclose(self):
         if not self.flags["__isopen"]:
             return
@@ -180,9 +193,14 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.ui.actionstart.setChecked(False)
             self.ui.actionpause.setChecked(False)
             self.ui.actionsettings.setDisabled(False)
+            self.statusmessage.setText("%s CLOSED" %self.config["portsettings"]["port"])
 
     def __onportclear(self):
         self.ui.textBrowser.clear()
+        self.txnum = 0
+        self.rxnum = 0
+        self.statustx.setText("TX: %s Bytes" %self.txnum)
+        self.statusrx.setText("RX: %s Bytes" %self.txnum)
 
     def __onabout(self):
         QtGui.QMessageBox.about(self,"About Serial Assistant", """<b>Serial Assistant</b> %s
@@ -203,6 +221,9 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         else:
             self.ui.textBrowser.append(data)
 
+        self.rxnum = self.rxnum + len(data)
+        self.statusrx.setText("RX: %s Bytes" %self.rxnum)
+
     def __onsend(self):
         if not self.flags["__isopen"]:
             QtGui.QMessageBox.critical(self,"Error", u"请先打开串口")
@@ -220,6 +241,10 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         else:
             data = data.encode()
         self.serial.send(data)
+
+        self.txnum =self.txnum +len(data)
+        self.statustx.setText("TX: %s Bytes" %(self.txnum))
+
         if self.config["sendsettings"]["repeat"]:
             interval = self.config["sendsettings"]["interval"]
             self.timer.start(interval)
@@ -249,13 +274,13 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionNew.setIcon(QtGui.QIcon(":/file_new.png"))
         self.ui.actionOpen.setIcon(QtGui.QIcon(":/file_open.png"))
         self.ui.actionSave.setIcon(QtGui.QIcon(":/file_save.png"))
+
         self.ui.actionQuit.setIcon(QtGui.QIcon(":/file_quit.png"))
         self.ui.fileToolBar = self.addToolBar("File")
         self.ui.fileToolBar.setIconSize (QtCore.QSize(32,32))
         self.ui.fileToolBar.setObjectName("FileToolBar")
         self.ui.fileToolBar.setToolButtonStyle(3)
         self.addactions(self.ui.fileToolBar, (self.ui.actionNew, self.ui.actionOpen,self.ui.actionSave,self.ui.actionQuit))
-
         # set edit action Icon and add edit tool bars
 
         self.ui.actionstart.setIcon(QtGui.QIcon(":/edit_play.png"))
@@ -321,3 +346,13 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
         self.ui.actionabout.triggered.connect(self.__onabout)
         self.ui.pushButton.clicked.connect(self.__onsend)
         self.connect(self.timer,QtCore.SIGNAL("timeout()"),self.__onsend)
+
+    def createStatusBar(self):
+        self.statusmessage = QtGui.QLabel()
+        self.statustx = QtGui.QLabel()
+        self.statusrx = QtGui.QLabel()
+        self.statusBar().addPermanentWidget(self.statusmessage,1)
+        self.statusBar().addPermanentWidget(self.statustx,1)
+        self.statusBar().addPermanentWidget(self.statusrx,1)
+        self.statustx.setText("TX: 0 Bytes")
+        self.statusrx.setText("RX: 0 Bytes")

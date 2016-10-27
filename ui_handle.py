@@ -47,18 +47,18 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
         index = self.flowcontrol.findText(portsettings["flowcontrol"])
         self.flowcontrol.setCurrentIndex(index)
         recvsettings = settings["recvsettings"]
-        if recvsettings == "ascii":
+        if recvsettings["recvascii"] == True:
             self.recvascii.setChecked (True)
         else:
-            self.recvascii.setChecked (False)
+            self.recvhex.setChecked (True)
         self.wrapline.setChecked(recvsettings["wrapline"])
         self.showsend.setChecked(recvsettings["showsend"])
         self.showtime.setChecked(recvsettings["showtime"])
         sendsettings = settings["sendsettings"]
-        if sendsettings == "ascii":
+        if sendsettings["sendascii"] == True:
             self.sendascii.setChecked (True)
         else:
-            self.sendascii.setChecked (False)
+            self.sendhex.setChecked (True)
         self.repeat.setChecked(sendsettings["repeat"])
         self.interval.setValue(sendsettings["interval"])
 
@@ -75,9 +75,9 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
     def getrecvsettings(self):
         settings = {"recvascii":"ascii","wrapline":True,"showsend":False,"showtime":False}
         if self.recvascii.isChecked():
-            settings["recvascii"] = "ascii"
+            settings["recvascii"] = True
         else:
-             settings["recvascii"] = "hex"
+             settings["recvascii"] = False
         settings["wrapline"] = self.wrapline.isChecked()
         settings["showsend"] = self.showsend.isChecked()
         settings["showtime"] =  self.showtime.isChecked()
@@ -85,9 +85,9 @@ class DlgHandle(QtGui.QDialog, Ui_Dialog):
     def getsendsettings(self):
         settings = {"sendascii":"ascii","repeat":False,"interval":1000}
         if self.sendascii.isChecked():
-            settings["sendascii"] = "ascii"
+            settings["sendascii"] = True
         else:
-             settings["sendascii"] = "hex"
+             settings["sendascii"] = False
         settings["repeat"] = self.repeat.isChecked()
         settings["interval"] = self.interval.value()
         return settings
