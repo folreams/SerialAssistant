@@ -19,5 +19,7 @@ def checkData(data, _type):
                     
     return not errch, msg
 
-toVisualHex = lambda data: b' '.join([hexlify(c.encode()) for c in data]).upper()
+toVisualHex = lambda data: b' '.join([hexlify(bytes([c])) for c in data]).upper()
 toHex = lambda data: b''.join([unhexlify(data[i:i+2]) for i in range(0, len(data), 2)])
+toStr = lambda data: ''.join([chr(c) for c in data])
+

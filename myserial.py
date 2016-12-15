@@ -5,21 +5,22 @@ import threading
 from time import sleep
 from PyQt4 import QtCore
 
-
 class MySerial(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.__terminate = False
         self.__exit = True
         self.qtobj = QtCore.QObject()
+        self.erobj = QtCore.QObject()
 
     def open(self, settings):
         try:
             self.serial = Serial(settings["port"],int(settings["baud"]),int(settings["databit"]),
                                  settings["checkbit"][0],int(settings["stopbit"]),int(settings["timeout"]))
+
         except Exception as msg:
             return False,msg
-
+        failure = 0
         self.serial.flushInput()
         self.serial.flushOutput()
         self.__exit = False
@@ -38,16 +39,35 @@ class MySerial(threading.Thread):
 
     def __recv(self):
         data, quit = None,False
+        failure=0
         while 1:
             if self.__terminate:
                 break
-            data = self.serial.read(1)
+            try:
+                data = self.serial.read(1)
+            except Exception as msg:
+                self.serial.close()
+                try:
+                    self.serial = Serial(settings["port"],int(settings["baud"]),int(settings["databit"]),
+                                 settings["checkbit"][0],int(settings["stopbit"]),int(settings["timeout"]))
+                    if self.serial.isOpen():
+                        failure = 0
+                except:
+                    failure=failure+1
+                    if failure>5:
+                        msg= "Please check you hardware"
+                        self.erobj.emit(QtCore.SIGNAL("Error"),msg)
+                        break
+                    else:
+                        sleep(0.1)
+                        continue
             if data == b'':
                 return
             while True:
                 sleep(0.03)
                 n = self.serial.inWaiting()
                 if n>0 :
+ #                   data = "%s%s" % (data, self.serial.read(n))
                     data = data + self.serial.read(n)
                 else:
                     quit = True

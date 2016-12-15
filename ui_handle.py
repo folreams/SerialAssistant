@@ -10,9 +10,6 @@ from qrc_resources import *
 class UiHandle(Ui_Form):
     def __init__(self):
         Ui_Form.__init__(self)
-
-    def getdatatpe(self):
-        data = self.textedit.toPlainText()
     def setupwidget(self):
         self.centralwidget.setLayout(self.verticalLayout)
 

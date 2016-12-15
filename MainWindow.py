@@ -139,7 +139,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             ret, msg = self.__portopen()
             if not ret:
                 self.ui.actionstart.setChecked(False)
-                QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
+                self.statusmessage.setText("%s OPEN FAIL" %self.config["portsettings"]["port"])
+#                QtGui.QMessageBox.critical(self,"Error",u"%s" % msg)
             else:
                 self.flags["__isopen"] = True
                 self.serial.start()
@@ -166,6 +167,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             return False,u"错误的端口号"
         self.serial = MySerial()
         self.connect(self.serial.qtobj, QtCore.SIGNAL("NewData"), self.onrecv)
+        self.connect(self.serial.erobj,QtCore.SIGNAL("Error"),self.onSerialError)
         ret,msg = self.serial.open(settings)
         return ret, msg
 
@@ -194,6 +196,14 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.ui.actionpause.setChecked(False)
             self.ui.actionsettings.setDisabled(False)
             self.statusmessage.setText("%s CLOSED" %self.config["portsettings"]["port"])
+    def onSerialError(self):
+        self.serial.close()
+        self.flags["__isopen"] = False
+        self.flags["__ispause"] = False
+        self.ui.actionstart.setChecked(False)
+        self.ui.actionpause.setChecked(False)
+        self.ui.actionsettings.setDisabled(False)
+        self.statusmessage.setText("%s CLOSED" %self.config["portsettings"]["port"])
 
     def __onportclear(self):
         self.ui.textBrowser.clear()
@@ -210,17 +220,17 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
 
     def onrecv(self, data):
         recvconfig = self.config["recvsettings"]
-        data =data.decode()
         if not recvconfig["recvascii"]:
             data =Util.toVisualHex(data)
+            data=data.decode()
         else:
+            data =Util.toStr(data)
             data =data.replace("/n","<br>")
         if not recvconfig["wrapline"]:
             self.ui.textBrowser.moveCursor(QtGui.QTextCursor.End)
-            self.ui.textBrowser.insertPlainText(data)
+            self.ui.textBrowser.insertPlainText(data.encode())
         else:
             self.ui.textBrowser.append(data)
-
         self.rxnum = self.rxnum + len(data)
         self.statusrx.setText("RX: %s Bytes" %self.rxnum)
 
@@ -229,17 +239,22 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             QtGui.QMessageBox.critical(self,"Error", u"请先打开串口")
             return
         data =  self.ui.textEdit.toPlainText()
-        type = self.config["sendsettings"]["sendascii"]
+
+        if not self.config["sendsettings"]["sendascii"]:
+            type = "hex"
+        else:
+            type = "ascii"
         ret,msg = Util.checkData(data,type)
+
         if not ret:
             QtGui.QMessageBox.critical(self,"Error",u"%s" %msg )
             return
         if self.config["recvsettings"]["showsend"]:
-            self.__ondatasend(data,self.config["recvsettings"]["recvascii"])
-        if type == "hex":
-            data = Util.toHex(''.join(data.split()))
-        else:
+            self.__ondatasend(data,type)
+        if type == "ascii":
             data = data.encode()
+        else:
+            data = Util.toHex(''.join(data.split( )))
         self.serial.send(data)
 
         self.txnum =self.txnum +len(data)
@@ -254,7 +269,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
                 data = data.replace("/n", '<br/>')
             else:
                 data = "".join(data.split())
-                data = "".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
+                data = " ".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
             if self.config["recvsettings"]["showtime"]:
                 self.ui.textBrowser.append("<b>[Send @ %s]</b> %s" % (ctime(),data))
             else:
