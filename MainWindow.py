@@ -253,6 +253,8 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
             self.__ondatasend(data,type)
         if type == "ascii":
             data = data.encode()
+            data= data.replace(b'\n',b'\r\n')
+            print(data)
         else:
             data = Util.toHex(''.join(data.split( )))
         self.serial.send(data)
@@ -266,7 +268,7 @@ class MainWindows(QtGui.QMainWindow, UiHandle):
  #rx display
     def __ondatasend(self,data, __type="ascii"):
             if __type == "ascii":
-                data = data.replace("/n", '<br/>')
+                data = data.replace("\n", '<br/>')
             else:
                 data = "".join(data.split())
                 data = " ".join([data[i:i+2] for i in range(0,len(data),2)]).upper()
